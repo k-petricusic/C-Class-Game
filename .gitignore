@@ -1,0 +1,20 @@
+# macOS system files
+.DS_Store
+
+# VSCode settings
+.vscode/
+
+# Compiled binaries
+game
+*.o
+*.out
+*.exe
+
+# Build folders
+build/
+cmake-build-*/
+
+# Temp or editor junk
+*.log
+*.swp
+*.tmp
