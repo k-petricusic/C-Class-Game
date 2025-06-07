@@ -1,23 +1,16 @@
+#include "Screen.h"
 #include <iostream>
-#include <cstdlib>
-using namespace std;
-
-void playGame() {
-    cout << "Game started! [Simulation of game here]" << endl;
-}
 
 int main() {
-    int choice;
-    cout << "=== Welcome to the Game ===" << endl;
-    cout << "1. Play Game\n2. Exit\n";
-    cout << "Enter your choice: ";
-    cin >> choice;
+    // Start at the title screen
+    Screen* current_screen = new Title_Screen();
 
-    if (choice == 1) {
-        playGame();
-    } else {
-        cout << "Exiting..." << endl;
+    // Loop through screens until the user exits
+    while (current_screen != nullptr) {
+        current_screen->show();
+        current_screen->get_user_input(current_screen);
     }
 
+    std::cout << "Goodbye!\n";
     return 0;
 }
