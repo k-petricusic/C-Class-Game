@@ -3,6 +3,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
 
 #include "Guard.h"
 #include "Player.h"
@@ -12,7 +14,7 @@ class Screen {
 public:
     virtual ~Screen() = default;
     virtual void show() = 0; //prints the board
-    virtual void get_user_input() = 0;
+    virtual void get_user_input(Screen*& current_screen) = 0;
 
     virtual bool move(Movable& movable, size_t direction) { return false; }
 
@@ -23,21 +25,21 @@ public:
 class Title_Screen : public Screen {
 public:
     void show() override;
-    void get_user_input() override;
+    void get_user_input(Screen*& current_screen) override;
 };
 
 // --------- Level Select screen class ---------
 class Level_Select_Screen : public Screen {
 public:
     void show() override;
-    void get_user_input() override;
+    void get_user_input(Screen*& current_screen) override;
 };
 
 // --------- Game Over screen class ---------
 class Game_Over_Screen : public Screen {
 public:
     void show() override;
-    void get_user_input() override;
+    void get_user_input(Screen*& current_screen) override;
 };
 
 // --------- Board screen class ---------
@@ -45,13 +47,19 @@ class Board_Screen : public Screen {
 private:
     std::vector<std::vector<char>> _board;
     // Player = "O", Guard = "G", Wall = "|", Empty = " "
+    int level;
 
 public:
+    Board_Screen(int lvl = 1) : level(lvl) {} // Default level is 1
+
     void show() override; // Prints the board
-    void get_user_input() override {}
+    // Wonder if this should handle user input instead of player to make main more uniform
+    void get_user_input(Screen*& current_screen) override {}
 
     bool move(Movable& movable, size_t direction) override;
 
     const std::vector<std::vector<char>>& get_board() const { return _board; }
-    //need to put in a way to set the board/update it with new levels
+    
+    int get_level() const { return level; } // Returns a copy of the level
+    void set_level(int lvl) { level = lvl; }
 };
