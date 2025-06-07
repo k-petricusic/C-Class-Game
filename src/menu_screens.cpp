@@ -5,7 +5,7 @@
 
 // --------- Title screen implementation ---------
 void Title_Screen::show() {
-    std::cout << "\033[2J\033[H"; // Clear the console screen
+    clear();
     std::cout << "Welcome to the Game!" << std::endl;
 }
 
@@ -35,7 +35,7 @@ void Title_Screen::get_user_input(Screen*& current_screen) {
 
 // --------- Level Select screen implementation ---------
 void Level_Select_Screen::show() {
-    std::cout << "\033[2J\033[H"; // Clear the console screen
+    clear();
     std::cout << "Select a level:" << std::endl;
     std::cout << "1. Level 1" << std::endl;
     std::cout << "2. Level 2" << std::endl;

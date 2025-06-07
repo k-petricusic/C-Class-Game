@@ -5,6 +5,7 @@
 #include <vector>
 #include <chrono>
 #include <thread>
+#include <sstream>
 
 #include "Guard.h"
 #include "Player.h"
@@ -18,7 +19,7 @@ public:
 
     virtual bool move(Movable& movable, size_t direction) { return false; }
 
-    void clear();
+    void clear() { std::cout << "\033[2J\033[H"; } // Clears the console screen
 };
 
 // --------- Title screen class ---------
@@ -45,12 +46,17 @@ public:
 // --------- Board screen class ---------
 class Board_Screen : public Screen {
 private:
+    char background = ' ';
+    char obstacle = 'X';
+
+    std::vector<Guard> _guards; // Guards on the board
     std::vector<std::vector<char>> _board;
     // Player = "O", Guard = "G", Wall = "|", Empty = " "
-    int level;
+
+    int _level;
 
 public:
-    Board_Screen(int lvl = 1) : level(lvl) {} // Default level is 1
+    Board_Screen(int lvl = 1) : _level(lvl) {} // Default level is 1
 
     void show() override; // Prints the board
     // Wonder if this should handle user input instead of player to make main more uniform
@@ -58,8 +64,12 @@ public:
 
     bool move(Movable& movable, size_t direction) override;
 
+    void read_level_from_file(const int level);
+
+    //if we need to we can add a fill command
+
     const std::vector<std::vector<char>>& get_board() const { return _board; }
-    
-    int get_level() const { return level; } // Returns a copy of the level
-    void set_level(int lvl) { level = lvl; }
+
+    int get_level() const { return _level; } // Returns a copy of the level
+    void set_level(int lvl) { _level = lvl; }
 };
