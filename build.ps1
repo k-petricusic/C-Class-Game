@@ -1,7 +1,7 @@
 Write-Host "Building C++ Game..."
 
 $Mode = "Release"
-if ($args.Count -gt 0) {
+if ($args.Count -gt 0) { # if there is an argument, use it as the mode instead
     $Mode = $args[0]
 }
 
