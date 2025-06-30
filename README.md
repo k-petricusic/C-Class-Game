@@ -8,6 +8,7 @@ Type the following commands in, and if it gives you a clean verison, you're good
 git --version  
 cmake --version  
 pkg-config --version
+ninja --version
 
 If you got an error, do this for Mac (only for the command that gave you the error):  
 First check that you have brew installed:  
@@ -17,10 +18,11 @@ If you get some kind of an error, install it through this command and then resta
 brew install git  
 brew install cmake  
 brew install pkg-config
+brew install ninja
 
 And for linux:  
 sudo apt update  
-sudo apt install build-essential pkg-config cmake git
+sudo apt install build-essential pkg-config cmake git ninja-build
 
 ### Clone vcpkg if you haven’t
 
@@ -33,6 +35,7 @@ cd ~/dev/vcpkg
 ### Build your project
 
 You can run:  
+cd ~/C-CLASS-GAME
 chmod +x build.sh  
 ./build.sh  
 Or change it out for this if you want debug mode:  
@@ -40,7 +43,7 @@ Or change it out for this if you want debug mode:
 
 ### Otherwise do:
 
-cd ~/dev/C-CLASS-GAME  
+cd ~/C-CLASS-GAME  
 mkdir build  
 cd build  
 cmake .. -DCMAKE_TOOLCHAIN_FILE=~/dev/vcpkg/scripts/buildsystems/vcpkg.cmake  
@@ -71,14 +74,15 @@ cd C:\dev\vcpkg
 ### Build your project
 
 You can run:  
+cd %USERPROFILE%\C-CLASS-GAME  
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass  
 ./build.ps1  
 Or if you want debug mode, run:
 ./build.ps1 Debug
 
-### Otherwise :
+### Otherwise:
 
-cd C:\dev\C-CLASS-GAME  
+cd C:\C-CLASS-GAME  
 mkdir build  
 cd build  
 cmake .. -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake  
