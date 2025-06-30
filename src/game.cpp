@@ -1,16 +1,17 @@
+#include <libtcod.hpp>
 #include "Screen.h"
 #include <iostream>
 
 int main() {
-    // Start at the title screen
-    Screen* current_screen = new Title_Screen();
+    TCODConsole::initRoot(80, 50, "My Game", false, TCOD_RENDERER_SDL2);
+    TCODConsole::root->setDefaultBackground(TCODColor::black);
+    TCODConsole::root->setDefaultForeground(TCODColor::white);
 
-    // Loop through screens until the user exits
-    while (current_screen != nullptr) {
-        current_screen->show();
-        current_screen->get_user_input(current_screen);
+    while (!TCODConsole::isWindowClosed()) {
+        TCODConsole::root->clear();
+        TCODConsole::root->print(1, 1, "Hello World");
+        TCODConsole::flush();
     }
-
-    std::cout << "Goodbye!\n";
+    TCODConsole::deinit();
     return 0;
 }

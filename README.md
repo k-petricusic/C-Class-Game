@@ -1,31 +1,54 @@
 # C++-Class-Game
 
-##  Building and running
+##  macOS/Linux building and running:
 
-If you're in the root of C-Class-Game, then do:
+### Clone vcpkg if you haven’t
 
+git clone https://github.com/microsoft/vcpkg.git ~/dev/vcpkg  
+cd ~/dev/vcpkg  
+./bootstrap-vcpkg.sh  
+./vcpkg integrate install  
+./vcpkg install libtcod
+
+### Build your project
+
+Or you can run:  
+chmod +x build.sh  
 ./build.sh
 
-and then after that put the mode you want, it defaults to debug.
+### Otherwise do:
 
-Examples:
+cd ~/dev/C-CLASS-GAME  
+mkdir build  
+cd build  
+cmake .. -DCMAKE_TOOLCHAIN_FILE=~/dev/vcpkg/scripts/buildsystems/vcpkg.cmake  
+cmake --build .
 
-./build.sh Debug
+### Run
+./game
 
-./build.sh Release
+## Windows building and running:
 
-To run the game, do:
+git clone https://github.com/microsoft/vcpkg.git C:\dev\vcpkg  
+cd C:\dev\vcpkg  
+.\bootstrap-vcpkg.bat  
+.\vcpkg integrate install  
+.\vcpkg install libtcod  
 
-./build/game
+### Build your project
 
-Do this only after the first build command
+Or you can run:  
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass  
+./build.ps1
 
+### Otherwise :
 
-## Updating computer to run
+cd C:\dev\C-CLASS-GAME  
+mkdir build  
+cd build  
+cmake .. -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake  
+cmake --build .
 
-Just run:
+### Run
 
-./build.sh 
-
-It can hanlde if your build directory is already created,
-or if you created new files (through reading CMakeLists)
+.\game.exe

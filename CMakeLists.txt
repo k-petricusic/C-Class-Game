@@ -6,15 +6,22 @@ project(StealthGame LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# IMPORTANT: Set options *before* FetchContent_Declare
+# Disables external libraries for libtcod
+set(LIBTCOD_USE_EXTERNAL_LZ4 OFF CACHE BOOL "" FORCE)
+set(LIBTCOD_USE_EXTERNAL_ZLIB OFF CACHE BOOL "" FORCE)
+set(LIBTCOD_USE_EXTERNAL_LodePNG OFF CACHE BOOL "" FORCE)
+
+
 # Enables FetchContent to get an external library like libtcod
 include(FetchContent)
-
 # Declares the libtcod library and specific version of 1.24.0 (for stability)
 FetchContent_Declare(
     libtcod
     GIT_REPOSITORY https://github.com/libtcod/libtcod.git
-    GIT_TAG 1.24.0
+    GIT_TAG 2.1.1
 )
+
 FetchContent_MakeAvailable(libtcod)
 
 # Finds all .cpp files in src directory, adds them to sources
