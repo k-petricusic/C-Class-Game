@@ -1,8 +1,9 @@
 # macOS system files
 .DS_Store
 
-# VSCode settings
+# VSCode and Cursor settings
 .vscode/
+.cursor/
 
 # Compiled binaries
 game
@@ -10,11 +11,21 @@ game
 *.out
 *.exe
 
-# Build folders
+# CMake build folders and artifacts
 build/
 cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+compile_commands.json
 
-# Temp or editor junk
+# Test results/logs
+Testing/
 *.log
-*.swp
 *.tmp
+
+# Editor backup/junk
+*.swp
+*.swo
+*~

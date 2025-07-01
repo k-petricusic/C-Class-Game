@@ -1,3 +1,5 @@
+#include <libtcod.hpp>
+#include "Screen.h"
 #include <iostream>
 #include <cstdlib>
 #include "../include/Guard.h"
@@ -10,6 +12,7 @@
 
 using namespace std;
 
+/*
 void playGame() {
     cout << "Game started! [Simulation of game here]" << endl;
     while (true) {
@@ -18,19 +21,18 @@ void playGame() {
         current_screen->get_user_input(current_screen);
     }
 }
+*/
 
 int main() {
-    int choice;
-    cout << "=== Welcome to the Game ===" << endl;
-    cout << "1. Play Game\n2. Exit\n";
-    cout << "Enter your choice: ";
-    cin >> choice;
+    TCODConsole::initRoot(80, 50, "My Game", false, TCOD_RENDERER_SDL2);
+    TCODConsole::root->setDefaultBackground(TCODColor::black);
+    TCODConsole::root->setDefaultForeground(TCODColor::white);
 
-    if (choice == 1) {
-        playGame();
-    } else {
-        cout << "Exiting..." << endl;
+    while (!TCODConsole::isWindowClosed()) {
+        TCODConsole::root->clear();
+        TCODConsole::root->print(1, 1, "Hello World");
+        TCODConsole::flush();
     }
-
+    TCODConsole::deinit();
     return 0;
 }

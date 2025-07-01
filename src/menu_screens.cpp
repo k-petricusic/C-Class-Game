@@ -1,7 +1,12 @@
 #include "Screen.h"
 
-#include <cctype>  // for std::tolower
-#include <cstdlib> // for exit()
+#include <cctype>   // for std::tolower
+#include <cstdlib>  // for exit()
+#include <fstream>  // for file IO
+#include <iostream>
+#include <string>
+#include <thread>
+#include <chrono>
 
 // --------- Title screen implementation ---------
 void Title_Screen::show() {
@@ -53,18 +58,39 @@ void Level_Select_Screen::get_user_input(Screen*& current_screen) {
         input = std::tolower(input); // case-insensitive match
 
         if (input == '1' || input == '2' || input == '3') {
-            // Start the selected level
-            int level = input - '0'; // Convert char to int using ASCII value logic
+            int level = input - '0';
+
+            // Rewrite line 1 of levels.txt
+            std::ifstream infile("levels.txt");
+            if (!infile.is_open()) {
+                std::cerr << "Failed to open levels.txt\n";
+                return;
+            }
+
+            std::string throwaway, rest_of_file, line;
+            std::getline(infile, throwaway);
+            while (std::getline(infile, line)) {
+                rest_of_file += line + "\n";
+            }
+            infile.close();
+
+            std::ofstream outfile("levels.txt");
+            outfile << level << "\n" << rest_of_file;
+            outfile.close();
+
+            // Transition to Board_Screen and display the level
             delete current_screen;
-            current_screen = new Board_Screen(level);
-            return; // Exit the loop after starting the level
+            Board_Screen* board = new Board_Screen(level);
+            board->load_and_display_level("levels.txt");
+            current_screen = new Level_Select_Screen(); // return to menu
+            return;
+
         } else if (input == 'b') {
-            // Go back to Title Screen
             delete current_screen;
             current_screen = new Title_Screen();
-            return; // Exit the loop after going back
+            return;
         } else {
-            std::cout << "Not a level, Please try again." << std::endl;
+            std::cout << "Not a level. Please try again." << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
         }
     }
