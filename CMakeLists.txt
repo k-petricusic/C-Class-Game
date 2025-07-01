@@ -19,8 +19,8 @@ add_executable(game ${SOURCES})
 target_include_directories(game PRIVATE include)
 
 # Links libtcod to the executable
-find_package(tcod CONFIG REQUIRED)
-target_link_libraries(game PRIVATE tcod::tcod)
+find_package(libtcod CONFIG REQUIRED)
+target_link_libraries(game PRIVATE libtcod::libtcod)
 
 # Sets the compile options for the executable
 # MSVC = Microsoft Visual C++

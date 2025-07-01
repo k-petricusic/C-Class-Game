@@ -17,7 +17,7 @@ If you get some kind of an error, install it through this command and then resta
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"  
 brew install git  
 brew install cmake  
-brew install pkg-config
+brew install pkg-config  
 brew install ninja
 
 And for linux:  
@@ -48,6 +48,11 @@ mkdir build
 cd build  
 cmake .. -DCMAKE_TOOLCHAIN_FILE=~/dev/vcpkg/scripts/buildsystems/vcpkg.cmake  
 cmake --build .
+
+### Fixing an incorrect build
+
+To fix a bad build, you need to clear CMakeCache.txt found inside the build directory, run this command to do that, and you'll need to run ./build.sh again afterwards:  
+rm -rf build
 
 ### Run
 
@@ -87,6 +92,11 @@ mkdir build
 cd build  
 cmake .. -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake  
 cmake --build .
+
+### Fixing an incorrect build
+
+To fix a bad build, you need to clear CMakeCache.txt found inside the build directory, run this command to do that, and you'll need to run ./build.ps1 again afterwards:  
+Remove-Item -Recurse -Force build
 
 ### Run
 
