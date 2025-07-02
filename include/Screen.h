@@ -64,6 +64,8 @@ public:
 
     bool move(Movable& movable, size_t direction) override;
 
+    void update_guard_los();
+
     void read_level_from_file(const int level);
 
     //if we need to we can add a fill command
