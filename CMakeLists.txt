@@ -19,8 +19,9 @@ add_executable(game ${SOURCES})
 target_include_directories(game PRIVATE include)
 
 # Links libtcod to the executable
+find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
 find_package(libtcod CONFIG REQUIRED)
-target_link_libraries(game PRIVATE libtcod::libtcod)
+target_link_libraries(game PRIVATE SDL3::SDL3 libtcod::libtcod)
 
 # Sets the compile options for the executable
 # MSVC = Microsoft Visual C++
@@ -29,5 +30,5 @@ target_link_libraries(game PRIVATE libtcod::libtcod)
 if (MSVC)
     target_compile_options(game PRIVATE /W4 /WX)
 else() # Enables all warnings and treats them as errors
-    target_compile_options(game PRIVATE -Wall -Wextra -pedantic) # put -Werror back in when done
+    target_compile_options(game PRIVATE -Wall -Wextra -pedantic -Werror)
 endif()

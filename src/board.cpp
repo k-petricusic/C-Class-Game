@@ -1,6 +1,4 @@
 #include <fstream>
-#include <sstream>
-#include <iostream>
 #include <algorithm>
 
 #include "Screen.h"
@@ -125,27 +123,22 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
     file.close();
 }
 
-void Board_Screen::use_user_input(Screen*& current_screen, const SDL_Event& event) override {
+void Board_Screen::use_user_input(Screen*& current_screen, const SDL_Event& event) {
     if (event.type == SDL_EVENT_KEY_DOWN) {
-        switch (event.key.keysym.sym) {
-            case SDLK_w:
-            case SDLK_UP:
+        switch (event.key.key) {
+            case SDLK_W:
                 move(_players[0], 1); // For now, only one player
                 break;
-            case SDLK_d:
-            case SDLK_RIGHT:
+            case SDLK_D:
                 move(_players[0], 2);
                 break;
-            case SDLK_s:
-            case SDLK_DOWN:
+            case SDLK_S:
                 move(_players[0], 3);
                 break;
-            case SDLK_a:
-            case SDLK_LEFT:
+            case SDLK_A:
                 move(_players[0], 4);
                 break;
-            case SDLK_q:
-            case SDLK_ESCAPE:
+            case SDLK_Q:
                 delete current_screen;
                 current_screen = new Title_Screen();
                 break;

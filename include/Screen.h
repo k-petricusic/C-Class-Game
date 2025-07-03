@@ -1,4 +1,7 @@
 #pragma once
+#include <libtcod.hpp>
+#include <SDL3/SDL.h>
+#include <optional>
 
 #include <iostream>
 #include <string>
@@ -12,6 +15,9 @@
 
 // --------- abstract class for other screens ---------
 class Screen {
+protected:
+    std::string error_message;
+
 public:
     virtual ~Screen() = default;
     virtual void show(tcod::Console& console) = 0; //prints the board
@@ -42,8 +48,8 @@ public:
 // --------- Board screen class ---------
 class Board_Screen : public Screen {
 private:
-    char background = ' ';
-    char obstacle = '|';
+    // background = ' '
+    // obstacle = '|'
 
     std::vector<Guard> _guards; // Guards on the board
     std::vector<Player> _players; // Players on the board
