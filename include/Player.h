@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Screen.h"
 #include "Movable.h"
 
 // --------- Player class ---------
