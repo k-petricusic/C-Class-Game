@@ -25,7 +25,7 @@ bool Board_Screen::move(Movable& obj, size_t direction) {
         case 1:
             if (obj.get_y() + 1 < _board.size()) {
                 new_pos = _board[obj.get_y() + 1][obj.get_x()];
-                if (new_pos != obstacle) {
+                if (new_pos == background) {
                     obj.set_y(obj.get_y() + 1);
                     return true;
                 }
@@ -34,7 +34,7 @@ bool Board_Screen::move(Movable& obj, size_t direction) {
         case 2:
             if (obj.get_x() + 1 < _board[0].size()) {
                 new_pos = _board[obj.get_y()][obj.get_x() + 1];
-                if (new_pos != obstacle) {
+                if (new_pos == background) {
                     obj.set_x(obj.get_x() + 1);
                     return true;
                 }
@@ -43,7 +43,7 @@ bool Board_Screen::move(Movable& obj, size_t direction) {
         case 3:
             if (obj.get_y() > 0) {
                 new_pos = _board[obj.get_y() - 1][obj.get_x()];
-                if (new_pos != obstacle) {
+                if (new_pos == background) {
                     obj.set_y(obj.get_y() - 1);
                     return true;
                 }
@@ -52,7 +52,7 @@ bool Board_Screen::move(Movable& obj, size_t direction) {
         case 4:
             if (obj.get_x() > 0) {
                 new_pos = _board[obj.get_y()][obj.get_x() - 1];
-                if (new_pos != obstacle) {
+                if (new_pos == background) {
                     obj.set_x(obj.get_x() - 1);
                     return true;
                 }

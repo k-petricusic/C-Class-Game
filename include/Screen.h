@@ -48,8 +48,8 @@ public:
 // --------- Board screen class ---------
 class Board_Screen : public Screen {
 private:
-    // background = ' '
-    // obstacle = '|'
+    static constexpr char background = ' ';
+    // obstacles are |
 
     std::vector<Guard> _guards; // Guards on the board
     std::vector<Player> _players; // Players on the board

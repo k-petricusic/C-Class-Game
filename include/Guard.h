@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Screen.h"
 #include "Movable.h"
+#include <vector>
 
 // --------- Guard class ---------
 class Guard : public Movable {

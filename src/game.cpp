@@ -1,15 +1,14 @@
 #include <libtcod.hpp>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
-#include "Screen.h"
+
 #include <iostream>
 #include <cstdlib>
+
 #include "../include/Guard.h"
 #include "../include/Movable.h"
 #include "../include/Player.h"
 #include "../include/Screen.h"
-#include "board.cpp"
-#include "menu_screens.cpp"
 
 using namespace std;
 
