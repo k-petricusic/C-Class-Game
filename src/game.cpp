@@ -1,4 +1,6 @@
 #include <libtcod.hpp>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 #include "Screen.h"
 #include <iostream>
 #include <cstdlib>
@@ -8,31 +10,33 @@
 #include "../include/Screen.h"
 #include "board.cpp"
 #include "menu_screens.cpp"
-#include "move.cpp"
 
 using namespace std;
 
-/*
-void playGame() {
-    cout << "Game started! [Simulation of game here]" << endl;
+int main(int argc, char* argv[]) {
+    auto console = tcod::Console{80, 50};
+    auto params = TCOD_ContextParams{};
+    params.console = console.get();
+    params.window_title = "My Game";
+    params.sdl_window_flags = SDL_WINDOW_RESIZABLE;
+    params.vsync = true;
+    params.argc = argc;
+    params.argv = argv;
+
+    auto context = tcod::Context(params);
+
+    Screen* current_screen = new Title_Screen();
+
     while (true) {
-        Screen* current_screen = new Title_Screen();
-        current_screen->show();
-        current_screen->get_user_input(current_screen);
-    }
-}
-*/
+        console.clear();
+        current_screen->show(console);
+        context.present(console);
 
-int main() {
-    TCODConsole::initRoot(80, 50, "My Game", false, TCOD_RENDERER_SDL2);
-    TCODConsole::root->setDefaultBackground(TCODColor::black);
-    TCODConsole::root->setDefaultForeground(TCODColor::white);
-
-    while (!TCODConsole::isWindowClosed()) {
-        TCODConsole::root->clear();
-        TCODConsole::root->print(1, 1, "Hello World");
-        TCODConsole::flush();
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_EVENT_QUIT) return 0;
+            current_screen->use_user_input(current_screen, event);
+        }
     }
-    TCODConsole::deinit();
     return 0;
 }

@@ -9,6 +9,4 @@ class Player : public Movable {
 public:
     Player(size_t x = 0, size_t y = 0)
         : Movable(x, y) {}
-
-    void player_move();
 };

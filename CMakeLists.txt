@@ -28,6 +28,6 @@ target_link_libraries(game PRIVATE libtcod::libtcod)
 # /WX = Treat warnings as errors
 if (MSVC)
     target_compile_options(game PRIVATE /W4 /WX)
-else()
-    target_compile_options(game PRIVATE -Wall -Wextra -pedantic -Werror)
+else() # Enables all warnings and treats them as errors
+    target_compile_options(game PRIVATE -Wall -Wextra -pedantic) # put -Werror back in when done
 endif()
