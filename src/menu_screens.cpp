@@ -1,4 +1,4 @@
-#include "Screen.h"
+#include "../include/Screen.h"
 
 #include <cctype>   // for std::tolower
 #include <cstdlib>  // for exit()

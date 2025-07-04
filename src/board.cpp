@@ -1,7 +1,7 @@
 #include <fstream>
 #include <algorithm>
 
-#include "Screen.h"
+#include "../include/Screen.h"
 
 Board_Screen::Board_Screen(int lvl) : _level(lvl) {
     read_level_from_file("levels.txt");
@@ -122,7 +122,7 @@ void Board_Screen::update_guard_los() {
 }
 */
 
-void Board_Screen::read_levels_from_file(const std::string& filename) {
+void Board_Screen::read_level_from_file(const std::string& filename) {
     _guards.clear();
     _players.clear();
     _board.clear();
