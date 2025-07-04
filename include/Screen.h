@@ -64,7 +64,10 @@ public:
     void show(tcod::Console& console) override; // Prints the board
     void use_user_input(Screen*& current_screen, const SDL_Event& event) override;
 
+
     bool move(Movable& movable, size_t direction);
+  
+    // void update_guard_los();
 
     void read_level_from_file(const std::string& filename);
 

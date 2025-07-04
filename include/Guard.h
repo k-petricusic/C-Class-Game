@@ -23,5 +23,12 @@ public:
     }
 
     // Moves guard around a wall to the left or right side based on the current board state
-    void guard_move_around_wall(const std::vector<std::vector<char>> &board, bool wall_side);
+    void guard_move_around_wall(Board_Screen &board, bool wall_side) {
+        board.move(*this, this->get_direction());
+        char new_pos;
+        while (!(board.move(*this, this->get_direction()))) {
+            _guard_direction = (_guard_direction % 4) + 1; // turns guard 90 degrees clockwise
+        }
+        board.move(*this, ((this->get_direction() + 1) % 4) + 1); //moves guard back in the direction it was moved in before the while loop
+    }
 };

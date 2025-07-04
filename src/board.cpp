@@ -63,7 +63,66 @@ bool Board_Screen::move(Movable& obj, size_t direction) {
     }
 }
 
-void Board_Screen::read_level_from_file(const std::string& filename) {
+/*
+void Board_Screen::update_guard_los() {
+    bool exit_loop;
+    for (size_t i = 0; i < _guards.size(); ++i) {
+        exit_loop = false;
+        for (size_t j = 0; j < _board.size() && j < 6 && !exit_loop; j++) { // will have to change if board is not square and add edge cases
+            switch(_guards[i].get_direction()) {
+                case 1:
+                    if (_guards[i].get_y() + j < _board.size()) {
+                        if (_board[_guards[i].get_y() + j][_guards[i].get_x()] == obstacle) {
+                            exit_loop = true;
+                        } 
+                        else {
+                            //set guard los in array or something
+                        }
+                    }
+                    break;
+                case 2:
+                    if (_guards[i].get_x() + j < _board.size()) {
+                        if (_board[_guards[i].get_y()][_guards[i].get_x() + j] == obstacle) {
+                            exit_loop = true;
+                        } 
+                        else {
+                            //set guard los in array or something
+                        }
+                    }
+                    break;
+                case 3:
+                    if (_guards[i].get_y() - j >= 0) {
+                        if (_board[_guards[i].get_y() - j][_guards[i].get_x()] == obstacle) {
+                            exit_loop = true;
+                        } 
+                        else {
+                            //set guard los in array or something
+                            if (_guards[i].get_y() - j == 0) {
+                                exit_loop = true;
+                            }
+                        }
+                    }
+                    break;
+                case 4:
+                    if (_guards[i].get_x() - j >= 0) {
+                        if (_board[_guards[i].get_y()][_guards[i].get_x() - j] == obstacle) {
+                            exit_loop = true;
+                        } 
+                        else {
+                            //set guard los in array or something
+                            if (_guards[i].get_x() - j == 0) {
+                                exit_loop = true;
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+    }
+}
+*/
+
+void Board_Screen::read_levels_from_file(const std::string& filename) {
     _guards.clear();
     _players.clear();
     _board.clear();
