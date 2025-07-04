@@ -8,6 +8,6 @@ if ($args.Count -gt 0) { # if there is an argument, use it as the mode instead
 New-Item -ItemType Directory -Force -Path build
 Set-Location build
 
-cmake .. -DCMAKE_TOOLCHAIN_FILE=~/dev/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=$Mode
+cmake .. -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=$Mode
 cmake --build .
 Write-Host "Build complete."

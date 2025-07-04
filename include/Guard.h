@@ -21,7 +21,7 @@ public:
         _guard_direction = direction;
         return true;
     }
-
+    /*
     // Moves guard around a wall to the left or right side based on the current board state
     void guard_move_around_wall(Board_Screen &board, bool wall_side) {
         board.move(*this, this->get_direction());
@@ -31,4 +31,5 @@ public:
         }
         board.move(*this, ((this->get_direction() + 1) % 4) + 1); //moves guard back in the direction it was moved in before the while loop
     }
+    */
 };
