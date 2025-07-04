@@ -1,5 +1,11 @@
 # Minimum version of cmake
 cmake_minimum_required(VERSION 3.15)
+
+# If the toolchain file is defined, set it to the default
+if(DEFINED CMAKE_TOOLCHAIN_FILE)
+    set(CMAKE_TOOLCHAIN_FILE "${CMAKE_TOOLCHAIN_FILE}" CACHE STRING "Toolchain file")
+endif()
+
 project(StealthGame LANGUAGES CXX)
 
 # Requires C++17 or throws an error
@@ -19,8 +25,9 @@ add_executable(game ${SOURCES})
 target_include_directories(game PRIVATE include)
 
 # Links libtcod to the executable
+find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
 find_package(libtcod CONFIG REQUIRED)
-target_link_libraries(game PRIVATE libtcod::libtcod)
+target_link_libraries(game PRIVATE SDL3::SDL3 libtcod::libtcod)
 
 # Sets the compile options for the executable
 # MSVC = Microsoft Visual C++
@@ -28,6 +35,6 @@ target_link_libraries(game PRIVATE libtcod::libtcod)
 # /WX = Treat warnings as errors
 if (MSVC)
     target_compile_options(game PRIVATE /W4 /WX)
-else()
+else() # Enables all warnings and treats them as errors
     target_compile_options(game PRIVATE -Wall -Wextra -pedantic -Werror)
 endif()

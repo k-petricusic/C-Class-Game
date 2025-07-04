@@ -1,21 +1,22 @@
 #include <fstream>
-#include <sstream>
-#include <iostream>
 #include <algorithm>
 
 #include "Screen.h"
 
-void Board_Screen::show() {
-    clear();
-    std::ostringstream oss;
+Board_Screen::Board_Screen(int lvl) : _level(lvl) {
+    read_level_from_file("levels.txt");
+}
 
-    for (int i = static_cast<int>(_board.size()) - 1; i >= 0; --i) { // Print from bottom to top
-        for (size_t j = 0; j < _board[i].size(); ++j) {
-            oss << _board[i][j];
+void Board_Screen::show(tcod::Console& console) {
+    int height = static_cast<int>(_board.size());
+    for (int i = 0; i < height; ++i) { // i = board y (bottom to top)
+        for (size_t j = 0; j < _board[i].size(); ++j) { // j = board x (left to right)
+            // Prints the board with the y axis bottom to top
+            console.at({static_cast<int>(j), (height - 1) - i}).ch = _board[i][j];
+            console.at({static_cast<int>(j), (height - 1) - i}).fg = tcod::ColorRGB{255, 255, 255};
+            console.at({static_cast<int>(j), (height - 1) - i}).bg = tcod::ColorRGB{0, 0, 0};
         }
-        oss << "\n";
     }
-    std::cout << oss.str();
 }
 
 bool Board_Screen::move(Movable& obj, size_t direction) {
@@ -24,40 +25,45 @@ bool Board_Screen::move(Movable& obj, size_t direction) {
         case 1:
             if (obj.get_y() + 1 < _board.size()) {
                 new_pos = _board[obj.get_y() + 1][obj.get_x()];
-                if (new_pos != obstacle) {
+                if (new_pos == background) {
                     obj.set_y(obj.get_y() + 1);
+                    return true;
                 }
             }
-            break;
+            return false;
         case 2:
             if (obj.get_x() + 1 < _board[0].size()) {
                 new_pos = _board[obj.get_y()][obj.get_x() + 1];
-                if (new_pos != obstacle) {
+                if (new_pos == background) {
                     obj.set_x(obj.get_x() + 1);
+                    return true;
                 }
             }
-            break;
+            return false;
         case 3:
             if (obj.get_y() > 0) {
                 new_pos = _board[obj.get_y() - 1][obj.get_x()];
-                if (new_pos != obstacle) {
+                if (new_pos == background) {
                     obj.set_y(obj.get_y() - 1);
+                    return true;
                 }
             }
-            break;
+            return false;
         case 4:
             if (obj.get_x() > 0) {
                 new_pos = _board[obj.get_y()][obj.get_x() - 1];
-                if (new_pos != obstacle) {
+                if (new_pos == background) {
                     obj.set_x(obj.get_x() - 1);
+                    return true;
                 }
             }
-            break;
+            return false;
+        default:
+            return false;
     }
-
-    return true; // Always returns true for now (could return false if no move occurred)
 }
 
+/*
 void Board_Screen::update_guard_los() {
     bool exit_loop;
     for (size_t i = 0; i < _guards.size(); ++i) {
@@ -114,8 +120,11 @@ void Board_Screen::update_guard_los() {
         }
     }
 }
+*/
+
 void Board_Screen::read_levels_from_file(const std::string& filename) {
     _guards.clear();
+    _players.clear();
     _board.clear();
 
     std::ifstream file(filename);
@@ -125,33 +134,26 @@ void Board_Screen::read_levels_from_file(const std::string& filename) {
     }
 
     std::string line;
-    int current_level = 0;
     bool found_level = false;
     size_t width = 0, height = 0;
     size_t row_index = 0;
 
-    // Step 1: Read first line (save level)
-    if (std::getline(file, line)) {
-        std::istringstream iss(line);
-        iss >> current_level;
-    }
-
-    // Step 2: Look for matching #<level>
+    // Look for matching #<level>
     while (std::getline(file, line)) {
-        if (line == "#" + std::to_string(current_level)) {
+        if (line == "#" + std::to_string(_level)) {
             found_level = true;
             break;
         }
     }
 
     if (!found_level) {
-        std::cerr << "Level #" << current_level << " not found.\n";
+        std::cerr << "Level #" << _level << " not found.\n";
         return;
     }
 
-    // Step 3: Read dimensions
+    // Read dimensions
     if (!std::getline(file, line)) {
-        std::cerr << "Expected dimensions line after #" << current_level << "\n";
+        std::cerr << "Expected dimensions line after #" << _level << "\n";
         return;
     }
 
@@ -161,14 +163,14 @@ void Board_Screen::read_levels_from_file(const std::string& filename) {
     _board.resize(height, std::vector<char>(width, ' '));
     row_index = height - 1;
 
-    // Step 4: Read the actual board
+    // Read the actual board
     while (row_index < height && std::getline(file, line)) {
         for (size_t x = 0; x < std::min(width, line.size()); ++x) {
             char c = line[x];
             _board[row_index][x] = c;
 
             if (c == 'O') {
-                _player.set_position(x, row_index);
+                _players.emplace_back(x, row_index);
             } else if (c == 'G') {
                 _guards.emplace_back(x, row_index, 1); // default direction = up
             }
@@ -180,9 +182,27 @@ void Board_Screen::read_levels_from_file(const std::string& filename) {
     file.close();
 }
 
-void Board_Screen::load_and_display_level(const std::string& filename) {
-    read_levels_from_file(filename);
-    std::cout << "\nRendering Level #" << _level << ":\n\n";
-    show();
-    std::cout << "\n\n";
+void Board_Screen::use_user_input(Screen*& current_screen, const SDL_Event& event) {
+    if (event.type == SDL_EVENT_KEY_DOWN) {
+        switch (event.key.key) {
+            case SDLK_W:
+                move(_players[0], 1); // For now, only one player
+                break;
+            case SDLK_D:
+                move(_players[0], 2);
+                break;
+            case SDLK_S:
+                move(_players[0], 3);
+                break;
+            case SDLK_A:
+                move(_players[0], 4);
+                break;
+            case SDLK_Q:
+                delete current_screen;
+                current_screen = new Title_Screen();
+                break;
+            default:
+                break;
+        }
+    }
 }
