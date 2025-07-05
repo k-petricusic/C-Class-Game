@@ -1,10 +1,12 @@
 #include <fstream>
 #include <algorithm>
+#include <filesystem>
 
 #include "../include/Screen.h"
 
 Board_Screen::Board_Screen(int lvl) : _level(lvl) {
-    read_level_from_file("levels.txt");
+    std::string level_path = get_executable_dir() + "/levels.txt";
+    read_level_from_file(level_path);
 }
 
 void Board_Screen::show(tcod::Console& console) {
@@ -199,7 +201,7 @@ void Board_Screen::use_user_input(Screen*& current_screen, const SDL_Event& even
                 break;
             case SDLK_Q:
                 delete current_screen;
-                current_screen = new Title_Screen();
+                current_screen = new Level_Select_Screen();
                 break;
             default:
                 break;

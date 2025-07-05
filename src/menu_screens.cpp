@@ -41,7 +41,7 @@ void Level_Select_Screen::show(tcod::Console& console) {
     tcod::print(console, {1, 3}, "1. Level 1", std::nullopt, std::nullopt);
     tcod::print(console, {1, 5}, "2. Level 2", std::nullopt, std::nullopt);
     tcod::print(console, {1, 7}, "3. Level 3", std::nullopt, std::nullopt);
-    tcod::print(console, {1, 9}, "Press 'b' to go back.", std::nullopt, std::nullopt);
+    tcod::print(console, {1, 9}, "Press 'q' to go back.", std::nullopt, std::nullopt);
     tcod::print(console, {1, 11}, "Enter your choice: ", std::nullopt, std::nullopt);
     if (error_message != "") {
         tcod::print(console, {1, 13}, error_message, std::nullopt, std::nullopt);
@@ -63,7 +63,7 @@ void Level_Select_Screen::use_user_input(Screen*& current_screen, const SDL_Even
                 delete current_screen;
                 current_screen = new Board_Screen(3);
                 return;
-            case SDLK_B: // Go back to title screen
+            case SDLK_Q: // Go back to title screen
                 delete current_screen;
                 current_screen = new Title_Screen();
                 return;
