@@ -94,5 +94,7 @@ public:
 
     int get_level() const { return _level; } // Returns a copy of the level
 
+    bool player_in_guard_sight() const;
+
     void update(Screen*& current_screen); // Add this method for ticking logic in the main loop
 };

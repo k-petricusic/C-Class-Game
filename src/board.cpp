@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <chrono>
 #include <iostream>
+#include <cmath>
 
 #include "../include/Screen.h"
 #include "../include/GuardMovementStrategies.h"
@@ -42,6 +43,65 @@ void Board_Screen::show(tcod::Console& console) {
             console.at({draw_x, draw_y}).ch = 'G';
         }
     }
+    
+    // Draw guard sight cones (90-degree, radius 5)
+    for (const auto& guard : _guards) {
+        int gx = static_cast<int>(guard.get_x());
+        int gy = static_cast<int>(guard.get_y());
+        int dir = guard.get_direction(); // 1=up, 2=right, 3=down, 4=left
+
+        // Facing vector
+        int fx = 0, fy = 0;
+        switch (dir) {
+            case 1: fy = -1; break; // up
+            case 2: fx = 1; break;  // right
+            case 3: fy = 1; break;  // down
+            case 4: fx = -1; break; // left
+            default: break;
+        }
+
+        for (int dy = -5; dy <= 5; ++dy) {
+            for (int dx = -5; dx <= 5; ++dx) {
+                int x = gx + dx;
+                int y = gy + dy;
+                // Check bounds and radius
+                if (x < 0 || x >= board_width || y < 0 || y >= board_height)
+                    continue;
+                if (dx*dx + dy*dy > 25 || (dx == 0 && dy == 0))
+                    continue;
+
+                // Vector from guard to tile
+                double vx = dx;
+                double vy = dy;
+                // Normalize
+                double vlen = std::sqrt(vx*vx + vy*vy);
+                vx /= vlen;
+                vy /= vlen;
+
+                // Facing vector normalized
+                double flen = std::sqrt(fx*fx + fy*fy);
+                double fvx = (flen == 0) ? 0 : fx / flen;
+                double fvy = (flen == 0) ? 0 : fy / flen;
+
+                // Dot product gives cos(angle)
+                double dot = vx * fvx + vy * fvy;
+                // Clamp for safety
+                if (dot > 1.0) dot = 1.0;
+                if (dot < -1.0) dot = -1.0;
+                double angle = std::acos(dot) * 180.0 / M_PI; // in degrees
+
+                if (angle <= 45.0) {
+                    int draw_x = x_offset + x;
+                    int draw_y = y_offset + y;
+                    if (draw_x >= 0 && draw_x < console_width && draw_y >= 0 && draw_y < console_height) {
+                        // Color the tile yellow for sight
+                        console.at({draw_x, draw_y}).bg = tcod::ColorRGB{255, 255, 0};
+                    }
+                }
+            }
+        }
+    }
+
     // Draw players
     for (const auto& player : _players) {
         int draw_x = x_offset + static_cast<int>(player.get_x());
@@ -196,6 +256,52 @@ void Board_Screen::update_guards() {
     }
 }
 
+bool Board_Screen::player_in_guard_sight() const {
+    if (_players.empty()) return false;
+    const auto& player = _players[0];
+    int px = static_cast<int>(player.get_x());
+    int py = static_cast<int>(player.get_y());
+
+    for (const auto& guard : _guards) {
+        int gx = static_cast<int>(guard.get_x());
+        int gy = static_cast<int>(guard.get_y());
+        int dir = guard.get_direction();
+
+        int fx = 0, fy = 0;
+        switch (dir) {
+            case 1: fy = -1; break; // up
+            case 2: fx = 1; break;  // right
+            case 3: fy = 1; break;  // down
+            case 4: fx = -1; break; // left
+            default: break;
+        }
+
+        int dx = px - gx;
+        int dy = py - gy;
+        if (dx*dx + dy*dy > 25 || (dx == 0 && dy == 0))
+            continue;
+
+        double vx = dx, vy = dy;
+        double vlen = std::sqrt(vx*vx + vy*vy);
+        vx /= vlen;
+        vy /= vlen;
+
+        double flen = std::sqrt(fx*fx + fy*fy);
+        double fvx = (flen == 0) ? 0 : fx / flen;
+        double fvy = (flen == 0) ? 0 : fy / flen;
+
+        double dot = vx * fvx + vy * fvy;
+        if (dot > 1.0) dot = 1.0;
+        if (dot < -1.0) dot = -1.0;
+        double angle = std::acos(dot) * 180.0 / M_PI;
+
+        if (angle <= 45.0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void Board_Screen::update(Screen*& current_screen) {
     auto now = std::chrono::steady_clock::now();
     if (pending_move_direction != 0 &&
@@ -212,4 +318,11 @@ void Board_Screen::update(Screen*& current_screen) {
         update_guards();
         last_move_time = now;
     }
+
+    if (player_in_guard_sight()) {
+        delete current_screen;
+        current_screen = new Game_Over_Screen();
+        return;
+    }
+
 }
