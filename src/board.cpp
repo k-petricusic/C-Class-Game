@@ -1,6 +1,7 @@
 #include <fstream>
 #include <algorithm>
 #include <filesystem>
+#include <chrono>
 
 #include "../include/Screen.h"
 
@@ -11,13 +12,20 @@ Board_Screen::Board_Screen(int lvl) : _level(lvl) {
 
 void Board_Screen::show(tcod::Console& console) {
     int height = static_cast<int>(_board.size());
-    for (int i = 0; i < height; ++i) { // i = board y (bottom to top)
+    for (int i = 0; i < height; ++i) { // i = board y (top to bottom)
         for (size_t j = 0; j < _board[i].size(); ++j) { // j = board x (left to right)
-            // Prints the board with the y axis bottom to top
-            console.at({static_cast<int>(j), (height - 1) - i}).ch = _board[i][j];
-            console.at({static_cast<int>(j), (height - 1) - i}).fg = tcod::ColorRGB{255, 255, 255};
-            console.at({static_cast<int>(j), (height - 1) - i}).bg = tcod::ColorRGB{0, 0, 0};
+            console.at({static_cast<int>(j), i}).ch = _board[i][j];
+            console.at({static_cast<int>(j), i}).fg = tcod::ColorRGB{255, 255, 255};
+            console.at({static_cast<int>(j), i}).bg = tcod::ColorRGB{0, 0, 0};
         }
+    }
+
+    // Superimpose the player and guards on top of the board
+    for (const auto& guard : _guards) {
+        console.at({static_cast<int>(guard.get_x()), static_cast<int>(guard.get_y())}).ch = 'G';
+    }
+    for (const auto& player : _players) {
+        console.at({static_cast<int>(player.get_x()), static_cast<int>(player.get_y())}).ch = 'O';
     }
 }
 
@@ -25,10 +33,10 @@ bool Board_Screen::move(Movable& obj, size_t direction) {
     char new_pos;
     switch(direction) {
         case 1:
-            if (obj.get_y() + 1 < _board.size()) {
-                new_pos = _board[obj.get_y() + 1][obj.get_x()];
+            if (obj.get_y() > 0) {
+                new_pos = _board[obj.get_y() - 1][obj.get_x()];
                 if (new_pos == background) {
-                    obj.set_y(obj.get_y() + 1);
+                    obj.set_y(obj.get_y() - 1);
                     return true;
                 }
             }
@@ -43,10 +51,10 @@ bool Board_Screen::move(Movable& obj, size_t direction) {
             }
             return false;
         case 3:
-            if (obj.get_y() > 0) {
-                new_pos = _board[obj.get_y() - 1][obj.get_x()];
+            if (obj.get_y() + 1 < _board.size()) {
+                new_pos = _board[obj.get_y() + 1][obj.get_x()];
                 if (new_pos == background) {
-                    obj.set_y(obj.get_y() - 1);
+                    obj.set_y(obj.get_y() + 1);
                     return true;
                 }
             }
@@ -169,13 +177,14 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
     while (row_index < height && std::getline(file, line)) {
         for (size_t x = 0; x < std::min(width, line.size()); ++x) {
             char c = line[x];
-            _board[row_index][x] = c;
-
             if (c == 'O') {
                 _players.emplace_back(x, row_index);
+                continue; // Doesn't place player/guard on board
             } else if (c == 'G') {
                 _guards.emplace_back(x, row_index, 1); // default direction = up
+                continue;
             }
+            _board[row_index][x] = c;
         }
         if (row_index == 0) break;
         --row_index;
@@ -187,24 +196,27 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
 void Board_Screen::use_user_input(Screen*& current_screen, const SDL_Event& event) {
     if (event.type == SDL_EVENT_KEY_DOWN) {
         switch (event.key.key) {
-            case SDLK_W:
-                move(_players[0], 1); // For now, only one player
-                break;
-            case SDLK_D:
-                move(_players[0], 2);
-                break;
-            case SDLK_S:
-                move(_players[0], 3);
-                break;
-            case SDLK_A:
-                move(_players[0], 4);
-                break;
+            case SDLK_W: pending_move_direction = 1; break;
+            case SDLK_D: pending_move_direction = 2; break;
+            case SDLK_S: pending_move_direction = 3; break;
+            case SDLK_A: pending_move_direction = 4; break;
             case SDLK_Q:
                 delete current_screen;
                 current_screen = new Level_Select_Screen();
                 break;
-            default:
-                break;
+            default: break;
         }
+    }
+}
+
+void Board_Screen::update() {
+    auto now = std::chrono::steady_clock::now();
+    if (pending_move_direction != 0 &&
+        std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
+        move(_players[0], pending_move_direction);
+        last_move_time = now;
+        pending_move_direction = 0;
+    } else if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
+        last_move_time = now;
     }
 }
