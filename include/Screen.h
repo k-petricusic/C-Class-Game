@@ -50,7 +50,7 @@ public:
 class Board_Screen : public Screen {
 private:
     static constexpr char background = ' ';
-    // obstacles are |
+    // obstacles are █
 
     std::vector<Guard> _guards; // Guards on the board
     std::vector<Player> _players; // Players on the board

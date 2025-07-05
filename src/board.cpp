@@ -201,7 +201,7 @@ void Board_Screen::use_user_input(Screen*& current_screen, const SDL_Event& even
                 break;
             case SDLK_Q:
                 delete current_screen;
-                current_screen = new Title_Screen();
+                current_screen = new Level_Select_Screen();
                 break;
             default:
                 break;
