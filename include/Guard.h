@@ -3,16 +3,19 @@
 #include "Movable.h"
 #include <vector>
 
+class IGuardMovementStrategy; // forward declaration to avoid circular includes
+
 // --------- Guard class ---------
 class Guard : public Movable {
     // Guard is a movable object, so it inherits from Movable
 private:
     size_t _guard_direction; // 1: up, 2: right, 3: down, 4: left
+    IGuardMovementStrategy* _movement_strategy;
 
 public:
 
-    Guard(size_t x = 0, size_t y = 0, size_t direction = 1)
-        : Movable(x, y), _guard_direction(direction) {}
+    Guard(size_t x = 0, size_t y = 0, size_t direction = 1, IGuardMovementStrategy* strategy = nullptr)
+        : Movable(x, y), _guard_direction(direction), _movement_strategy(strategy) {}
     
     size_t get_direction() const { return _guard_direction; }
 
@@ -21,15 +24,11 @@ public:
         _guard_direction = direction;
         return true;
     }
-    /*
-    // Moves guard around a wall to the left or right side based on the current board state
-    void guard_move_around_wall(Board_Screen &board, bool wall_side) {
-        board.move(*this, this->get_direction());
-        char new_pos;
-        while (!(board.move(*this, this->get_direction()))) {
-            _guard_direction = (_guard_direction % 4) + 1; // turns guard 90 degrees clockwise
-        }
-        board.move(*this, ((this->get_direction() + 1) % 4) + 1); //moves guard back in the direction it was moved in before the while loop
+    
+    void set_movement_strategy(IGuardMovementStrategy* strategy) {
+        _movement_strategy = strategy;
     }
-    */
+
+    IGuardMovementStrategy* get_movement_strategy() const { return _movement_strategy; }
+
 };

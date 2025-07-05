@@ -4,6 +4,7 @@
 #include <chrono>
 
 #include "../include/Screen.h"
+#include "../include/GuardMovementStrategies.h"
 
 Board_Screen::Board_Screen(int lvl) : _level(lvl) {
     std::string level_path = get_executable_dir() + "/levels.txt";
@@ -11,21 +12,41 @@ Board_Screen::Board_Screen(int lvl) : _level(lvl) {
 }
 
 void Board_Screen::show(tcod::Console& console) {
-    int height = static_cast<int>(_board.size());
-    for (int i = 0; i < height; ++i) { // i = board y (top to bottom)
-        for (size_t j = 0; j < _board[i].size(); ++j) { // j = board x (left to right)
-            console.at({static_cast<int>(j), i}).ch = _board[i][j];
-            console.at({static_cast<int>(j), i}).fg = tcod::ColorRGB{255, 255, 255};
-            console.at({static_cast<int>(j), i}).bg = tcod::ColorRGB{0, 0, 0};
+    int board_height = static_cast<int>(_board.size());
+    int board_width = board_height > 0 ? static_cast<int>(_board[0].size()) : 0;
+    int console_height = console.get_height();
+    int console_width = console.get_width();
+
+    int y_offset = (console_height - board_height) / 2;
+    int x_offset = (console_width - board_width) / 2;
+
+    for (int i = 0; i < board_height; ++i) {
+        for (int j = 0; j < board_width; ++j) {
+            int draw_x = x_offset + j;
+            int draw_y = y_offset + i;
+            if (draw_x >= 0 && draw_x < console_width && draw_y >= 0 && draw_y < console_height) {
+                console.at({draw_x, draw_y}).ch = _board[i][j];
+                console.at({draw_x, draw_y}).fg = tcod::ColorRGB{255, 255, 255};
+                console.at({draw_x, draw_y}).bg = tcod::ColorRGB{0, 0, 0};
+            }
         }
     }
 
-    // Superimpose the player and guards on top of the board
+    // Draw guards
     for (const auto& guard : _guards) {
-        console.at({static_cast<int>(guard.get_x()), static_cast<int>(guard.get_y())}).ch = 'G';
+        int draw_x = x_offset + static_cast<int>(guard.get_x());
+        int draw_y = y_offset + static_cast<int>(guard.get_y());
+        if (draw_x >= 0 && draw_x < console_width && draw_y >= 0 && draw_y < console_height) {
+            console.at({draw_x, draw_y}).ch = 'G';
+        }
     }
+    // Draw players
     for (const auto& player : _players) {
-        console.at({static_cast<int>(player.get_x()), static_cast<int>(player.get_y())}).ch = 'O';
+        int draw_x = x_offset + static_cast<int>(player.get_x());
+        int draw_y = y_offset + static_cast<int>(player.get_y());
+        if (draw_x >= 0 && draw_x < console_width && draw_y >= 0 && draw_y < console_height) {
+            console.at({draw_x, draw_y}).ch = 'O';
+        }
     }
 }
 
@@ -73,65 +94,6 @@ bool Board_Screen::move(Movable& obj, size_t direction) {
     }
 }
 
-/*
-void Board_Screen::update_guard_los() {
-    bool exit_loop;
-    for (size_t i = 0; i < _guards.size(); ++i) {
-        exit_loop = false;
-        for (size_t j = 0; j < _board.size() && j < 6 && !exit_loop; j++) { // will have to change if board is not square and add edge cases
-            switch(_guards[i].get_direction()) {
-                case 1:
-                    if (_guards[i].get_y() + j < _board.size()) {
-                        if (_board[_guards[i].get_y() + j][_guards[i].get_x()] == obstacle) {
-                            exit_loop = true;
-                        } 
-                        else {
-                            //set guard los in array or something
-                        }
-                    }
-                    break;
-                case 2:
-                    if (_guards[i].get_x() + j < _board.size()) {
-                        if (_board[_guards[i].get_y()][_guards[i].get_x() + j] == obstacle) {
-                            exit_loop = true;
-                        } 
-                        else {
-                            //set guard los in array or something
-                        }
-                    }
-                    break;
-                case 3:
-                    if (_guards[i].get_y() - j >= 0) {
-                        if (_board[_guards[i].get_y() - j][_guards[i].get_x()] == obstacle) {
-                            exit_loop = true;
-                        } 
-                        else {
-                            //set guard los in array or something
-                            if (_guards[i].get_y() - j == 0) {
-                                exit_loop = true;
-                            }
-                        }
-                    }
-                    break;
-                case 4:
-                    if (_guards[i].get_x() - j >= 0) {
-                        if (_board[_guards[i].get_y()][_guards[i].get_x() - j] == obstacle) {
-                            exit_loop = true;
-                        } 
-                        else {
-                            //set guard los in array or something
-                            if (_guards[i].get_x() - j == 0) {
-                                exit_loop = true;
-                            }
-                        }
-                    }
-                    break;
-            }
-        }
-    }
-}
-*/
-
 void Board_Screen::read_level_from_file(const std::string& filename) {
     _guards.clear();
     _players.clear();
@@ -171,7 +133,7 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
     dim_stream >> width >> height;
 
     _board.resize(height, std::vector<char>(width, ' '));
-    row_index = height - 1;
+    row_index = 0;
 
     // Read the actual board
     while (row_index < height && std::getline(file, line)) {
@@ -181,13 +143,28 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
                 _players.emplace_back(x, row_index);
                 continue; // Doesn't place player/guard on board
             } else if (c == 'G') {
-                _guards.emplace_back(x, row_index, 1); // default direction = up
+                _guards.emplace_back(x, row_index);
                 continue;
             }
             _board[row_index][x] = c;
         }
-        if (row_index == 0) break;
-        --row_index;
+        ++row_index;
+    }
+
+    std::getline(file, line); // Reads the next line after the board
+    if (line == "GUARD_STRATEGIES") {
+        while (std::getline(file, line) && !line.empty() && line[0] != '#') {
+            std::istringstream iss(line);
+            size_t x, y, direction;
+            std::string strategy;
+            iss >> x >> y >> strategy >> direction;
+            for (auto& guard : _guards) {
+                if (guard.get_x() == x && guard.get_y() == y) {
+                    guard.set_movement_strategy(create_guard_movement_strategy(strategy));
+                    guard.set_direction(direction);
+                }
+            }
+        }
     }
 
     file.close();
@@ -209,14 +186,23 @@ void Board_Screen::use_user_input(Screen*& current_screen, const SDL_Event& even
     }
 }
 
+void Board_Screen::update_guards() {
+    for (auto& guard : _guards) {
+        if (guard.get_movement_strategy()) {
+            guard.get_movement_strategy()->move(guard, *this);
+        }
+    }
+}
+
 void Board_Screen::update() {
     auto now = std::chrono::steady_clock::now();
     if (pending_move_direction != 0 &&
         std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
         move(_players[0], pending_move_direction);
-        last_move_time = now;
         pending_move_direction = 0;
-    } else if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
+    } 
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
+        update_guards();
         last_move_time = now;
     }
 }

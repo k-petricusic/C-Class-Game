@@ -70,8 +70,8 @@ public:
 
 
     bool move(Movable& movable, size_t direction);
-  
-    // void update_guard_los();
+
+    void update_guards();
 
     void read_level_from_file(const std::string& filename);
 
