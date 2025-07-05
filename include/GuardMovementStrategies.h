@@ -13,13 +13,12 @@ public:
 
 // 2. Strategies
 
-/*
 // 3. Random Search Strategy
 class RandomSearchStrategy : public IGuardMovementStrategy {
 public:
     void move(Guard& guard, Board_Screen& board) override;
 };
-*/
+
 
 // 4. Move Around Wall Strategy
 class MoveAroundWallStrategy : public IGuardMovementStrategy {

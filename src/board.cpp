@@ -4,6 +4,7 @@
 #include <chrono>
 
 #include "../include/Screen.h"
+#include "../include/GuardMovementStrategies.h"
 
 Board_Screen::Board_Screen(int lvl) : _level(lvl) {
     std::string level_path = get_executable_dir() + "/levels.txt";
@@ -11,21 +12,41 @@ Board_Screen::Board_Screen(int lvl) : _level(lvl) {
 }
 
 void Board_Screen::show(tcod::Console& console) {
-    int height = static_cast<int>(_board.size());
-    for (int i = 0; i < height; ++i) { // i = board y (top to bottom)
-        for (size_t j = 0; j < _board[i].size(); ++j) { // j = board x (left to right)
-            console.at({static_cast<int>(j), i}).ch = _board[i][j];
-            console.at({static_cast<int>(j), i}).fg = tcod::ColorRGB{255, 255, 255};
-            console.at({static_cast<int>(j), i}).bg = tcod::ColorRGB{0, 0, 0};
+    int board_height = static_cast<int>(_board.size());
+    int board_width = board_height > 0 ? static_cast<int>(_board[0].size()) : 0;
+    int console_height = console.get_height();
+    int console_width = console.get_width();
+
+    int y_offset = (console_height - board_height) / 2;
+    int x_offset = (console_width - board_width) / 2;
+
+    for (int i = 0; i < board_height; ++i) {
+        for (int j = 0; j < board_width; ++j) {
+            int draw_x = x_offset + j;
+            int draw_y = y_offset + i;
+            if (draw_x >= 0 && draw_x < console_width && draw_y >= 0 && draw_y < console_height) {
+                console.at({draw_x, draw_y}).ch = _board[i][j];
+                console.at({draw_x, draw_y}).fg = tcod::ColorRGB{255, 255, 255};
+                console.at({draw_x, draw_y}).bg = tcod::ColorRGB{0, 0, 0};
+            }
         }
     }
 
-    // Superimpose the player and guards on top of the board
+    // Draw guards
     for (const auto& guard : _guards) {
-        console.at({static_cast<int>(guard.get_x()), static_cast<int>(guard.get_y())}).ch = 'G';
+        int draw_x = x_offset + static_cast<int>(guard.get_x());
+        int draw_y = y_offset + static_cast<int>(guard.get_y());
+        if (draw_x >= 0 && draw_x < console_width && draw_y >= 0 && draw_y < console_height) {
+            console.at({draw_x, draw_y}).ch = 'G';
+        }
     }
+    // Draw players
     for (const auto& player : _players) {
-        console.at({static_cast<int>(player.get_x()), static_cast<int>(player.get_y())}).ch = 'O';
+        int draw_x = x_offset + static_cast<int>(player.get_x());
+        int draw_y = y_offset + static_cast<int>(player.get_y());
+        if (draw_x >= 0 && draw_x < console_width && draw_y >= 0 && draw_y < console_height) {
+            console.at({draw_x, draw_y}).ch = 'O';
+        }
     }
 }
 
@@ -127,7 +148,6 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
             }
             _board[row_index][x] = c;
         }
-        if (row_index == 0) break;
         ++row_index;
     }
 
@@ -135,7 +155,7 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
     if (line == "GUARD_STRATEGIES") {
         while (std::getline(file, line) && !line.empty() && line[0] != '#') {
             std::istringstream iss(line);
-            int x, y, direction;
+            size_t x, y, direction;
             std::string strategy;
             iss >> x >> y >> strategy >> direction;
             for (auto& guard : _guards) {
@@ -168,8 +188,8 @@ void Board_Screen::use_user_input(Screen*& current_screen, const SDL_Event& even
 
 void Board_Screen::update_guards() {
     for (auto& guard : _guards) {
-        if (guard._movement_strategy) {
-            guard._movement_strategy->move(guard, *this);
+        if (guard.get_movement_strategy()) {
+            guard.get_movement_strategy()->move(guard, *this);
         }
     }
 }

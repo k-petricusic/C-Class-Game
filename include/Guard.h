@@ -29,5 +29,6 @@ public:
         _movement_strategy = strategy;
     }
 
+    IGuardMovementStrategy* get_movement_strategy() const { return _movement_strategy; }
 
 };

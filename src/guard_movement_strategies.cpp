@@ -5,10 +5,12 @@
 
 // 1. Random Search Strategy
 void RandomSearchStrategy::move(Guard& guard, Board_Screen& board) {
+    (void)board; // Prevent unused parameter warning
     static std::random_device rd;
     static std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(1, 4);
     guard.set_direction(dis(gen));
+    board.move(guard, guard.get_direction());
 }
 
 // -------------------------------- Move around wall strategy --------------------------------
