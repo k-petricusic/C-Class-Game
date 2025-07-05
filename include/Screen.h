@@ -46,6 +46,21 @@ public:
     void use_user_input(Screen*& current_screen, const SDL_Event& event) override;
 };
 
+// --------- Game Won screen class ---------
+class Game_Won_Screen : public Screen {
+    private:
+        int _level;
+    
+    public:
+        Game_Won_Screen(int level) : _level(level) {}
+
+        int get_level() const { return _level; }
+
+        void show(tcod::Console& console) override;
+        void use_user_input(Screen*& current_screen, const SDL_Event& event) override;
+    };
+    
+
 // --------- Board screen class ---------
 class Board_Screen : public Screen {
 private:
@@ -79,5 +94,5 @@ public:
 
     int get_level() const { return _level; } // Returns a copy of the level
 
-    void update(); // Add this method for ticking logic in the main loop
+    void update(Screen*& current_screen); // Add this method for ticking logic in the main loop
 };

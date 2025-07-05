@@ -2,11 +2,13 @@
 #include <algorithm>
 #include <filesystem>
 #include <chrono>
+#include <iostream>
 
 #include "../include/Screen.h"
 #include "../include/GuardMovementStrategies.h"
 
 Board_Screen::Board_Screen(int lvl) : _level(lvl) {
+    std::cout << "Board_Screen _level: " << _level << std::endl;
     std::string level_path = get_executable_dir() + "/levels.txt";
     read_level_from_file(level_path);
 }
@@ -56,7 +58,7 @@ bool Board_Screen::move(Movable& obj, size_t direction) {
         case 1:
             if (obj.get_y() > 0) {
                 new_pos = _board[obj.get_y() - 1][obj.get_x()];
-                if (new_pos == background) {
+                if (new_pos == background || new_pos == 'E') {
                     obj.set_y(obj.get_y() - 1);
                     return true;
                 }
@@ -65,7 +67,7 @@ bool Board_Screen::move(Movable& obj, size_t direction) {
         case 2:
             if (obj.get_x() + 1 < _board[0].size()) {
                 new_pos = _board[obj.get_y()][obj.get_x() + 1];
-                if (new_pos == background) {
+                if (new_pos == background || new_pos == 'E') {
                     obj.set_x(obj.get_x() + 1);
                     return true;
                 }
@@ -74,7 +76,7 @@ bool Board_Screen::move(Movable& obj, size_t direction) {
         case 3:
             if (obj.get_y() + 1 < _board.size()) {
                 new_pos = _board[obj.get_y() + 1][obj.get_x()];
-                if (new_pos == background) {
+                if (new_pos == background || new_pos == 'E') {
                     obj.set_y(obj.get_y() + 1);
                     return true;
                 }
@@ -83,7 +85,7 @@ bool Board_Screen::move(Movable& obj, size_t direction) {
         case 4:
             if (obj.get_x() > 0) {
                 new_pos = _board[obj.get_y()][obj.get_x() - 1];
-                if (new_pos == background) {
+                if (new_pos == background || new_pos == 'E') {
                     obj.set_x(obj.get_x() - 1);
                     return true;
                 }
@@ -194,12 +196,17 @@ void Board_Screen::update_guards() {
     }
 }
 
-void Board_Screen::update() {
+void Board_Screen::update(Screen*& current_screen) {
     auto now = std::chrono::steady_clock::now();
     if (pending_move_direction != 0 &&
         std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
         move(_players[0], pending_move_direction);
         pending_move_direction = 0;
+        if (_board[_players[0].get_y()][_players[0].get_x()] == 'E') {
+            delete current_screen;
+            current_screen = new Game_Won_Screen(_level);
+            return;
+        }
     } 
     if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
         update_guards();

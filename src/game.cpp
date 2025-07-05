@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
 
         // Only call update if the current screen is a Board_Screen
         if (auto board = dynamic_cast<Board_Screen*>(current_screen)) {
-            board->update();
+            board->update(current_screen);
         }
 
         SDL_Event event;
