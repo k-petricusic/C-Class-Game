@@ -73,65 +73,6 @@ bool Board_Screen::move(Movable& obj, size_t direction) {
     }
 }
 
-/*
-void Board_Screen::update_guard_los() {
-    bool exit_loop;
-    for (size_t i = 0; i < _guards.size(); ++i) {
-        exit_loop = false;
-        for (size_t j = 0; j < _board.size() && j < 6 && !exit_loop; j++) { // will have to change if board is not square and add edge cases
-            switch(_guards[i].get_direction()) {
-                case 1:
-                    if (_guards[i].get_y() + j < _board.size()) {
-                        if (_board[_guards[i].get_y() + j][_guards[i].get_x()] == obstacle) {
-                            exit_loop = true;
-                        } 
-                        else {
-                            //set guard los in array or something
-                        }
-                    }
-                    break;
-                case 2:
-                    if (_guards[i].get_x() + j < _board.size()) {
-                        if (_board[_guards[i].get_y()][_guards[i].get_x() + j] == obstacle) {
-                            exit_loop = true;
-                        } 
-                        else {
-                            //set guard los in array or something
-                        }
-                    }
-                    break;
-                case 3:
-                    if (_guards[i].get_y() - j >= 0) {
-                        if (_board[_guards[i].get_y() - j][_guards[i].get_x()] == obstacle) {
-                            exit_loop = true;
-                        } 
-                        else {
-                            //set guard los in array or something
-                            if (_guards[i].get_y() - j == 0) {
-                                exit_loop = true;
-                            }
-                        }
-                    }
-                    break;
-                case 4:
-                    if (_guards[i].get_x() - j >= 0) {
-                        if (_board[_guards[i].get_y()][_guards[i].get_x() - j] == obstacle) {
-                            exit_loop = true;
-                        } 
-                        else {
-                            //set guard los in array or something
-                            if (_guards[i].get_x() - j == 0) {
-                                exit_loop = true;
-                            }
-                        }
-                    }
-                    break;
-            }
-        }
-    }
-}
-*/
-
 void Board_Screen::read_level_from_file(const std::string& filename) {
     _guards.clear();
     _players.clear();
@@ -171,7 +112,7 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
     dim_stream >> width >> height;
 
     _board.resize(height, std::vector<char>(width, ' '));
-    row_index = height - 1;
+    row_index = 0;
 
     // Read the actual board
     while (row_index < height && std::getline(file, line)) {
@@ -181,13 +122,29 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
                 _players.emplace_back(x, row_index);
                 continue; // Doesn't place player/guard on board
             } else if (c == 'G') {
-                _guards.emplace_back(x, row_index, 1); // default direction = up
+                _guards.emplace_back(x, row_index);
                 continue;
             }
             _board[row_index][x] = c;
         }
         if (row_index == 0) break;
-        --row_index;
+        ++row_index;
+    }
+
+    std::getline(file, line); // Reads the next line after the board
+    if (line == "GUARD_STRATEGIES") {
+        while (std::getline(file, line) && !line.empty() && line[0] != '#') {
+            std::istringstream iss(line);
+            int x, y, direction;
+            std::string strategy;
+            iss >> x >> y >> strategy >> direction;
+            for (auto& guard : _guards) {
+                if (guard.get_x() == x && guard.get_y() == y) {
+                    guard.set_movement_strategy(create_guard_movement_strategy(strategy));
+                    guard.set_direction(direction);
+                }
+            }
+        }
     }
 
     file.close();
@@ -209,14 +166,23 @@ void Board_Screen::use_user_input(Screen*& current_screen, const SDL_Event& even
     }
 }
 
+void Board_Screen::update_guards() {
+    for (auto& guard : _guards) {
+        if (guard._movement_strategy) {
+            guard._movement_strategy->move(guard, *this);
+        }
+    }
+}
+
 void Board_Screen::update() {
     auto now = std::chrono::steady_clock::now();
     if (pending_move_direction != 0 &&
         std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
         move(_players[0], pending_move_direction);
-        last_move_time = now;
         pending_move_direction = 0;
-    } else if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
+    } 
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
+        update_guards();
         last_move_time = now;
     }
 }
