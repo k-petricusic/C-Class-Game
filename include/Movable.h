@@ -12,6 +12,12 @@ public:
     virtual void set_x(size_t x) { _x = x; }
     virtual void set_y(size_t y) { _y = y; }
 
+    void set_position(size_t x, size_t y) {
+    _x = x;
+    _y = y;
+}
+
+
 protected:
     size_t _x = 0;
     size_t _y = 0;

@@ -1,0 +1,137 @@
+1
+#1
+50 21
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+X                                                X
+X                                                X
+X                                                X
+X                                                X
+X                       O                        X
+X                                                X
+X                                                X
+X                                                X
+X                                                X
+X                                                X
+X                                                X
+X                                                X
+X                       G                        X
+X                                                X
+X                                                X
+X                                                X
+X                       E                        X
+X                                                X
+X                                                X
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+#2
+50 13
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+X                                                X
+X                                                X
+X   XXX            XXX                           X
+X   X X                                          X
+X   X X                                          X
+X E X X       G          XXX          O          X
+X   X X                                          X
+X   X X                                          X
+X   XXX            XXX                           X
+X                                                X
+X                                                X
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+#3
+50 10
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+X                  X                             X
+X        G         X                             X
+X                  X                             X
+X                  X                             X
+X                          X                     X
+X                          X                     X
+X                     O    X                     X
+X                          X                     X
+X                          X               E     X
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+#4
+50 13
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XO   X                                         E X
+X    XXXXXXXXXXXXXXXXXXX   XXXXXXX        XXX    X
+X          X           X   X     X        X X    X
+X    X           X         X     X        X X    X
+X  XXXXXXX  XXXXXXX  XXXX  XXXXXXX        XXX    X
+X       X                         X              X
+X  G                X                       X    X
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+#5
+50 15
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+X                                                X
+X        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX          X
+X        X                            X          X
+X   O    X                            X    G     X
+X        X                            X          X
+X        X       XXXXXXXXXXXXXX       X          X
+X        X                       X    X          X
+X        X                       X    X          X
+X        X                       X    X          X
+X        X                       X    X          X
+X        X                            X          X
+X        X                            X          X
+X                    G                         E X
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+#6
+50 10
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+X O      X        X          G         X        EX
+X                                                X
+X    X       X          X       X          X     X
+X                  X         G         X         X
+X    X              X    X         X             X
+X            X                       X    X      X
+X     G              X          X                X
+X                                                X
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+#7
+50 13
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+X     G           XXXXXXXXXXXXX           G    EX
+X   XXXXX   XXXXX             XXXXX   XXXXX     X
+X   X   X   X   X     G       X   X   X   X     X
+X   X   X   X   X             X   X   X   X     X
+X   XXXXX   XXXXX             XXXXX   XXXXX     X
+X                                            X  X
+X    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX   X  X
+X                                         G  X  X
+X   XXXXX   XXXXX   XXXXX   XXXXX   XXXXXXX  X  X
+X O     X   X   X   X   X   X   X   X     X     X
+X       X   X   X   X   X   X   X   X     X     X
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+#8
+50 21
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+X                                                X
+X                 XXXX                     E     X
+X                 X                              X
+X        G        X                              X
+X                 XXXX                           X
+X                 X                              X
+X                 X                              X
+X                 XXXX                           X
+X      X   X                X   X                X
+X      X  X                 X  X                 X
+X      X X                  X X           G       X
+X      XX          G        XX                   X
+X      X X                  X X                  X
+X      X  X                 X  X                 X
+X      X   X                X   X                X
+X      X    X               X    X               X
+X      X     X              X     X              X
+X  O                                             X
+X                                                X
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

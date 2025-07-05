@@ -81,9 +81,10 @@ void Level_Select_Screen::get_user_input(Screen*& current_screen) {
             // Transition to Board_Screen and display the level
             delete current_screen;
             Board_Screen* board = new Board_Screen(level);
-            board->load_and_display_level("levels.txt");
-            current_screen = new Level_Select_Screen(); // return to menu
+            current_screen = board; 
+            board->get_user_input(current_screen); 
             return;
+
 
         } else if (input == 'b') {
             delete current_screen;
