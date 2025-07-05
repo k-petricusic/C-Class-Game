@@ -21,6 +21,20 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 # game has all the sources inside
 add_executable(game ${SOURCES})
 
+# Copies the levels.txt file to the directory with the executable game.exe
+add_custom_command(TARGET game POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_SOURCE_DIR}/src/levels.txt
+        $<TARGET_FILE_DIR:game>
+)
+
+# Copies the terminal.png file to the directory with the executable game.exe
+add_custom_command(TARGET game POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_SOURCE_DIR}/src/terminal.png
+        $<TARGET_FILE_DIR:game>
+)
+
 # Links libtcod to the executable
 target_include_directories(game PRIVATE include)
 

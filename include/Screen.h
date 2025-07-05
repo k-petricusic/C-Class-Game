@@ -12,6 +12,7 @@
 
 #include "Guard.h"
 #include "Player.h"
+#include "Utils.h"
 
 // --------- abstract class for other screens ---------
 class Screen {

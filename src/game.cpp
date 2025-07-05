@@ -1,6 +1,7 @@
 #include <libtcod.hpp>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include <filesystem>
 
 #include <iostream>
 #include <cstdlib>
@@ -13,6 +14,17 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
+    // Get the executable directory (implement get_executable_dir as discussed)
+    std::string exe_dir = get_executable_dir();
+    std::string font_path = exe_dir + "/terminal.png";
+
+    // Load the font tileset
+    auto tileset = tcod::load_tilesheet(
+        font_path, // path to terminal.png
+        32, 8,     // columns and rows for the tileset
+        tcod::CHARMAP_TCOD // character mapping
+    );
+
     auto console = tcod::Console{80, 50};
     auto params = TCOD_ContextParams{};
     params.console = console.get();
@@ -21,6 +33,7 @@ int main(int argc, char* argv[]) {
     params.vsync = true;
     params.argc = argc;
     params.argv = argv;
+    params.tileset = tileset.get(); // <-- set the tileset here!
 
     auto context = tcod::Context(params);
 
