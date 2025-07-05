@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     // Load the font tileset
     auto tileset = tcod::load_tilesheet(
         font_path, // path to terminal.png
-        32, 8,     // columns and rows for the tileset
+        std::array<int, 2>{32, 8},  // columns and rows for the tileset
         tcod::CHARMAP_TCOD // character mapping
     );
 
