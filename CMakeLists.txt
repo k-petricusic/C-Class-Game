@@ -31,7 +31,7 @@ add_custom_command(TARGET game POST_BUILD
 # Copies the terminal.png file to the directory with the executable game.exe
 add_custom_command(TARGET game POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_SOURCE_DIR}/src/terminal.png
+        ${CMAKE_SOURCE_DIR}/src/terminal8x8_gs_ro.png
         $<TARGET_FILE_DIR:game>
 )
 
