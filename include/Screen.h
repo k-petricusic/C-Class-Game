@@ -59,6 +59,9 @@ private:
 
     int _level;
 
+    std::chrono::steady_clock::time_point last_move_time = std::chrono::steady_clock::now();
+    int pending_move_direction = 0;
+
 public:
     Board_Screen(int lvl);
 
@@ -75,4 +78,6 @@ public:
     const std::vector<std::vector<char>>& get_board() const { return _board; }
 
     int get_level() const { return _level; } // Returns a copy of the level
+
+    void update(); // Add this method for ticking logic in the main loop
 };

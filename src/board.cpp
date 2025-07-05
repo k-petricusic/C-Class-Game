@@ -1,6 +1,7 @@
 #include <fstream>
 #include <algorithm>
 #include <filesystem>
+#include <chrono>
 
 #include "../include/Screen.h"
 
@@ -195,24 +196,27 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
 void Board_Screen::use_user_input(Screen*& current_screen, const SDL_Event& event) {
     if (event.type == SDL_EVENT_KEY_DOWN) {
         switch (event.key.key) {
-            case SDLK_W:
-                move(_players[0], 1); // For now, only one player
-                break;
-            case SDLK_D:
-                move(_players[0], 2);
-                break;
-            case SDLK_S:
-                move(_players[0], 3);
-                break;
-            case SDLK_A:
-                move(_players[0], 4);
-                break;
+            case SDLK_W: pending_move_direction = 1; break;
+            case SDLK_D: pending_move_direction = 2; break;
+            case SDLK_S: pending_move_direction = 3; break;
+            case SDLK_A: pending_move_direction = 4; break;
             case SDLK_Q:
                 delete current_screen;
                 current_screen = new Level_Select_Screen();
                 break;
-            default:
-                break;
+            default: break;
         }
+    }
+}
+
+void Board_Screen::update() {
+    auto now = std::chrono::steady_clock::now();
+    if (pending_move_direction != 0 &&
+        std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
+        move(_players[0], pending_move_direction);
+        last_move_time = now;
+        pending_move_direction = 0;
+    } else if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
+        last_move_time = now;
     }
 }

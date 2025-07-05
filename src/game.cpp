@@ -44,6 +44,11 @@ int main(int argc, char* argv[]) {
         current_screen->show(console);
         context.present(console);
 
+        // Only call update if the current screen is a Board_Screen
+        if (auto board = dynamic_cast<Board_Screen*>(current_screen)) {
+            board->update();
+        }
+
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) return 0;
