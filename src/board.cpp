@@ -19,18 +19,18 @@ Board_Screen::Board_Screen(int lvl) : _level(lvl) {
 }
 
 void Board_Screen::show(tcod::Console& console) {
-    int board_height = static_cast<int>(_board.size());
-    int board_width = board_height > 0 ? static_cast<int>(_board[0].size()) : 0;
-    int console_height = console.get_height();
-    int console_width = console.get_width();
+    size_t board_height = _board.size();
+    size_t board_width = board_height > 0 ? _board[0].size() : 0;
+    size_t console_height = console.get_height();
+    size_t console_width = console.get_width();
 
-    int y_offset = (console_height - board_height) / 2;
-    int x_offset = (console_width - board_width) / 2;
+    size_t y_offset = (console_height - board_height) / 2;
+    size_t x_offset = (console_width - board_width) / 2;
 
-    for (int i = 0; i < board_height; ++i) {
-        for (int j = 0; j < board_width; ++j) {
-            int draw_x = x_offset + j;
-            int draw_y = y_offset + i;
+    for (size_t i = 0; i < board_height; ++i) {
+        for (size_t j = 0; j < board_width; ++j) {
+            size_t draw_x = x_offset + j;
+            size_t draw_y = y_offset + i;
             if (draw_x >= 0 && draw_x < console_width && draw_y >= 0 && draw_y < console_height) {
                 console.at({draw_x, draw_y}).ch = _board[i][j];
                 console.at({draw_x, draw_y}).fg = tcod::ColorRGB{255, 255, 255};
@@ -41,8 +41,8 @@ void Board_Screen::show(tcod::Console& console) {
 
     // Draw guards
     for (const auto& guard : _guards) {
-        int draw_x = x_offset + static_cast<int>(guard.get_x());
-        int draw_y = y_offset + static_cast<int>(guard.get_y());
+        size_t draw_x = x_offset + guard.get_x();
+        size_t draw_y = y_offset + guard.get_y();
         if (draw_x >= 0 && draw_x < console_width && draw_y >= 0 && draw_y < console_height) {
             console.at({draw_x, draw_y}).ch = 'G';
         }
@@ -50,8 +50,8 @@ void Board_Screen::show(tcod::Console& console) {
     
     // Draw guard sight cones (90-degree, radius 5)
     for (const auto& guard : _guards) {
-        int gx = static_cast<int>(guard.get_x());
-        int gy = static_cast<int>(guard.get_y());
+        size_t gx = guard.get_x();
+        size_t gy = guard.get_y();
         int dir = guard.get_direction(); // 1=up, 2=right, 3=down, 4=left
 
         // Facing vector
