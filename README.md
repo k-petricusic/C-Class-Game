@@ -1,171 +1,261 @@
 # C++-Class-Game
 
-Important notes:  
-If you install a tool but the command still isn't found, try restarting your terminal or logging out and back in.  
-It's typical for downloads to take a few minutes, just be patient
+A terminal-based C++ game project. This game demonstrates object-oriented programming, terminal graphics, and fun gameplay mechanics. Great for learning, hacking, or just playing!
 
-##  macOS/Linux building and running:
+---
 
-### Check for all necessary installs:
+## Table of Contents
+- [Project Overview](#project-overview)
+- [Getting Started](#getting-started)
+  - [Cloning the Repository](#cloning-the-repository)
+- [Prerequisites](#prerequisites)
+- [Building the Project](#building-the-project)
+  - [macOS/Linux](#macoslinux)
+  - [Windows](#windows)
+- [Running the Game](#running-the-game)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
 
-Type the following commands in, and if it gives you a clean verison, you're good to go!  
+---
+
+## Project Overview
+C++-Class-Game is a terminal-based game written in C++. It uses modern C++ features and demonstrates:
+- Object-oriented design
+- Terminal graphics (using libtcod)
+- Modular code structure
+- Cross-platform build support (macOS, Linux, Windows)
+
+---
+
+## Getting Started
+
+### Cloning the Repository
+First, you need to get a copy of this project on your computer. Open your terminal (or PowerShell on Windows) and run:
+
+#### macOS/Linux
 ```sh
-git --version  
-cmake --version  
+# Clone the repository into your home directory for easy access
+cd ~
+git clone https://github.com/yourusername/C-Class-Game.git C-CLASS-GAME
+cd C-CLASS-GAME
+```
+
+#### Windows
+```powershell
+# Clone the repository into your C: drive for easy access
+cd C:\
+git clone https://github.com/yourusername/C-Class-Game.git C-CLASS-GAME
+cd C:\C-CLASS-GAME
+```
+
+> **What does this do?**
+> - `git clone ... C-CLASS-GAME` downloads the project files into a folder named C-CLASS-GAME in your home (or C:) directory.
+> - `cd ...` moves you into the project directory.
+
+---
+
+## Prerequisites
+Before building, make sure you have the following tools installed:
+
+### macOS
+| Tool         | What it's for                        | Install Command              |
+|--------------|--------------------------------------|------------------------------|
+| git          | Downloading the project              | `brew install git`           |
+| cmake        | Build system generator               | `brew install cmake`         |
+| ninja        | Fast build tool                      | `brew install ninja`         |
+| pkg-config   | Library configuration                | `brew install pkg-config`    |
+| vcpkg        | C++ package manager                  | See below                    |
+| libtcod      | Terminal graphics library            | Installed via vcpkg          |
+
+> **Tip:** On macOS, use [Homebrew](https://brew.sh/) to install packages. If you don't have Homebrew, install it with:
+> ```sh
+> /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+> ```
+
+#### Check if you have the tools (macOS):
+```sh
+git --version
+cmake --version
 pkg-config --version
 ninja --version
 ```
+If any command fails, install the missing tool as shown above.
 
-If you got an error on any of those steps, do this for Mac:  
-First check that you have brew installed:  
-```sh
-brew --version  
-```
-If you get an error when checking brew, install it through this command and then restart your terminal:  
-```sh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 
-```
-Now, install the component that gave you the error after --version
-```sh 
-brew install git  
-brew install cmake  
-brew install pkg-config  
-brew install ninja
-```
+### Linux
+| Tool         | What it's for                        | Install Command              |
+|--------------|--------------------------------------|------------------------------|
+| git          | Downloading the project              | `sudo apt install git`           |
+| cmake        | Build system generator               | `sudo apt install cmake`         |
+| ninja        | Fast build tool                      | `sudo apt install ninja-build`    |
+| pkg-config   | Library configuration                | `sudo apt install pkg-config`    |
+| build-essential | Compiler and build tools           | `sudo apt install build-essential`|
+| vcpkg        | C++ package manager                  | See below                    |
+| libtcod      | Terminal graphics library            | Installed via vcpkg          |
 
-And for linux:  
+> **Tip:** On Linux, use your package manager (e.g., apt for Ubuntu/Debian) to install packages.
+
+#### Check if you have the tools (Linux):
 ```sh
-sudo apt update  
+git --version
+cmake --version
+pkg-config --version
+ninja --version
+```
+If any command fails, install the missing tool as shown above.
+
+And for Linux, you can install all the essentials with:
+```sh
+sudo apt update
 sudo apt install build-essential pkg-config cmake git ninja-build
 ```
 
-### Clone vcpkg if you haven't
+### Windows
+| Tool         | What it's for                        | Install Command/Link         |
+|--------------|--------------------------------------|------------------------------|
+| git          | Downloading the project              | [Download](https://git-scm.com/download/win) |
+| cmake        | Build system generator               | [Download](https://cmake.org/download/) |
+| ninja        | Fast build tool                      | Unnecessary for Windows      |
+| pkg-config   | Library configuration                | (comes with vcpkg)           |
+| vcpkg        | C++ package manager                  | See below                    |
+| libtcod      | Terminal graphics library            | Installed via vcpkg          |
 
-```sh
-git clone https://github.com/microsoft/vcpkg.git ~/dev/vcpkg  
-cd ~/dev/vcpkg  
-./bootstrap-vcpkg.sh  
-./vcpkg integrate install  
-./vcpkg install libtcod
+> **Tip:** On Windows, use the provided links to download and install the tools.
+
+#### Check if you have the tools (Windows):
+```powershell
+git --version
+cmake --version
 ```
+If any command fails, install the missing tool as shown above.
 
-### Build your project
+---
 
-You can run:  
-```sh
-cd ~/C-CLASS-GAME
-chmod +x build.sh  
-./build.sh  
-```
-Or change it out for this if you want debug mode:  
-```sh
-./build.sh Debug
-```
+## Building the Project
 
-### Otherwise do:
+### macOS/Linux
 
-```sh
-cd ~/C-CLASS-GAME  
-mkdir build  
-cd build  
-cmake .. -DCMAKE_TOOLCHAIN_FILE=~/dev/vcpkg/scripts/buildsystems/vcpkg.cmake  
-cmake --build .
-```
+1. **Install vcpkg and libtcod**
+   ```sh
+   git clone https://github.com/microsoft/vcpkg.git ~/dev/vcpkg
+   cd ~/dev/vcpkg
+   ./bootstrap-vcpkg.sh
+   ./vcpkg integrate install
+   ./vcpkg install libtcod
+   ```
+   > This sets up the C++ package manager and installs the graphics library.
 
-### Fixing an incorrect build
+2. **Build the project**
+   - **Quick build:**
+     ```sh
+     cd ~/C-CLASS-GAME
+     chmod +x build.sh
+     ./build.sh
+     ```
+     > This script configures and builds the project using CMake and Ninja.
 
-To fix a bad build, you need to clear CMakeCache.txt found inside the build directory, run this command to do that, and you'll need to run ./build.sh again afterwards:  
-```sh
-rm -rf build
-```
+   - **Debug build:**
+     ```sh
+     ./build.sh Debug
+     ```
+     > Builds with debug symbols for easier debugging.
 
-### Run
+   - **Manual build:**
+     ```sh
+     mkdir build
+     cd build
+     cmake .. -DCMAKE_TOOLCHAIN_FILE=~/dev/vcpkg/scripts/buildsystems/vcpkg.cmake
+     cmake --build .
+     ```
+     > This is the manual way to configure and build if you want more control.
 
+### Windows
+
+1. **Install vcpkg and libtcod**
+   ```powershell
+   git clone https://github.com/microsoft/vcpkg.git C:\dev\vcpkg
+   cd C:\dev\vcpkg
+   .\bootstrap-vcpkg.bat
+   .\vcpkg integrate install
+   .\vcpkg install libtcod
+   ```
+   > This sets up the C++ package manager and installs the graphics library.
+
+   If you get a "triplet error" after installing libtcod, install Visual C++ Build Tools:
+   1. Go to https://visualstudio.microsoft.com/visual-cpp-build-tools/
+   2. Download and install "Desktop development with C++"
+   3. Restart your terminal and try again.
+
+2. **Build the project**
+   - **Quick build:**
+     ```powershell
+     cd C:\C-CLASS-GAME  
+     Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+     ./build.ps1
+     ```
+     > This script configures and builds the project using CMake and Ninja.
+
+   - **Debug build:**
+     ```powershell
+     ./build.ps1 Debug
+     ```
+     > Builds with debug symbols for easier debugging.
+
+   - **Manual build:**
+     ```powershell
+     mkdir build
+     cd build
+     cmake .. -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake
+     cmake --build .
+     ```
+     > This is the manual way to configure and build if you want more control.
+
+---
+
+## Running the Game
+
+After building, run the game from the build directory:
+
+### macOS/Linux
 ```sh
 ./game
 ```
 
-## Windows building and running:
-
-### Check for all necessary installs:
-```powershell
-git --version  
-cmake --version
-```
-If you got an error, do the option corresponding to your error:  
-If git --version gives you an error, download it here:  
-https://git-scm.com/download/win  
-
-If `cmake --version` gives you an error, install CMake:  
-1. Go to https://cmake.org/download/  
-2. Download the correct version for your computer  
-3. Run the installer to finish downloading and **choose the option to add CMake to your system PATH**  
-4. After installation, open a new Command Prompt and run `cmake --version` to verify.
-
-### Getting the Installer (vcpkg package manager)
-
-These commands:
-1. Clones the installer's repository  
-2. Moves into the cloned repository on your computer  
-3. Compiles installer to allow you to install new libraries  
-4. Allows CMake (used to compile thie game) to use the installer to access those new libraries  
-5. The installer installs a new library
-
-```powershell
-git clone https://github.com/microsoft/vcpkg.git C:\dev\vcpkg  
-cd C:\dev\vcpkg  
-.\bootstrap-vcpkg.bat  
-.\vcpkg integrate install  
-.\vcpkg install libtcod  
-```
-
-If you got a error triplet error after running `.\vcpkg install libtcod` do these steps:  
-1. Go to this website: https://visualstudio.microsoft.com/visual-cpp-build-tools/  
-2. Click "Download Build Tools" and follow steps  
-3. When following steps, select "Desktop development with C++"  
-4. Restart your terminal/PowerShell once it's installed  
-5. Run `cd C:\dev\vcpkg` to make sure you're in the right place  
-6. Run `.\vcpkg install libtcod` and it should work now
-
-### Build your project
-
-You can run:  
-```powershell
-cd C:\C-CLASS-GAME  
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass  
-./build.ps1  
-```
-
-Or if you want debug mode, run:
-```powershell
-./build.ps1 Debug
-```
-
-If the first command `cd C:\C-CLASS-GAME` doesn't work, search for the C-Class-Game file in your finder then right click the top search and select "copy address as text". Then type cd and paste and follow the next steps the same.
-
-If you get a permissions error with Set-ExecutionPolicy, try running PowerShell as Administrator.
-
-### Otherwise:
-
-```powershell
-cd C:\C-CLASS-GAME  
-mkdir build  
-cd build  
-cmake .. -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake  
-cmake --build .
-```
-
-### Fixing an incorrect build
-
-To fix a bad build, you need to clear CMakeCache.txt found inside the build directory, run this command to do that, and you'll need to run ./build.ps1 again afterwards:  
-```powershell
-Remove-Item -Recurse -Force build
-```
-
-### Run
-
+### Windows
 ```powershell
 .\Debug\game.exe
 ```
+If that doesn't work, look for a `Debug` folder inside `build` and double click `game.exe` from there.
 
-If that doesn't work, look around the build folder for another folder called Debug. Inside there should be a game.exe file for you to double click on and open manually.
+---
+
+## Troubleshooting
+
+- **Build errors or strange behavior?**
+  - Clear the build cache and rebuild:
+    - macOS/Linux:
+      ```sh
+      rm -rf build
+      ./build.sh
+      ```
+    - Windows:
+      ```powershell
+      Remove-Item -Recurse -Force build
+      ./build.ps1
+      ```
+- **Command not found?**
+  - Make sure the tool is installed and your terminal is restarted.
+- **Permissions error on Windows?**
+  - Try running PowerShell as Administrator.
+- **Still stuck?**
+  - Check the issues page or open a new issue on GitHub.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please fork the repository, make your changes, and submit a pull request. For major changes, open an issue first to discuss what you'd like to change.
+
+Become a beta tester by playing our game and filling out this form:  
+https://docs.google.com/forms/d/e/1FAIpQLSe6YKlQTI7Qc4jxVJvfyrBUSd9kNMXNq38Cy_ZB0f-7iAq42w/viewform?usp=dialog
+
