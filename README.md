@@ -1,6 +1,6 @@
 # C++-Class-Game
 
-A terminal-based C++ game project. This game demonstrates object-oriented programming, terminal graphics, and fun gameplay mechanics. Great for learning, hacking, or just playing!
+A terminal-based C++ project.
 
 ---
 
@@ -20,11 +20,7 @@ A terminal-based C++ game project. This game demonstrates object-oriented progra
 ---
 
 ## Project Overview
-C++-Class-Game is a terminal-based game written in C++. It uses modern C++ features and demonstrates:
-- Object-oriented design
-- Terminal graphics (using libtcod)
-- Modular code structure
-- Cross-platform build support (macOS, Linux, Windows)
+This is a stealth game written using C++. Try to avoid the guard's sight lines as you make your way to the exit!
 
 ---
 
@@ -49,16 +45,27 @@ git clone https://github.com/yourusername/C-Class-Game.git C-CLASS-GAME
 cd C:\C-CLASS-GAME
 ```
 
-> **What does this do?**
-> - `git clone ... C-CLASS-GAME` downloads the project files into a folder named C-CLASS-GAME in your home (or C:) directory.
-> - `cd ...` moves you into the project directory.
-
 ---
 
 ## Prerequisites
 Before building, make sure you have the following tools installed:
 
-### macOS
+### MacOS
+
+Check if you have the tools (macOS):
+```sh
+git --version
+cmake --version
+pkg-config --version
+ninja --version
+```
+If any command fails, install the missing tool as shown below.
+
+> **Tip:** On macOS, use [Homebrew](https://brew.sh/) to install packages. If you don't have Homebrew, install it with:
+> ```sh
+> /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+> ```
+
 | Tool         | What it's for                        | Install Command              |
 |--------------|--------------------------------------|------------------------------|
 | git          | Downloading the project              | `brew install git`           |
@@ -68,21 +75,18 @@ Before building, make sure you have the following tools installed:
 | vcpkg        | C++ package manager                  | See below                    |
 | libtcod      | Terminal graphics library            | Installed via vcpkg          |
 
-> **Tip:** On macOS, use [Homebrew](https://brew.sh/) to install packages. If you don't have Homebrew, install it with:
-> ```sh
-> /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-> ```
+### Linux
 
-#### Check if you have the tools (macOS):
+Check if you have the tools (Linux):
 ```sh
 git --version
 cmake --version
 pkg-config --version
 ninja --version
 ```
-If any command fails, install the missing tool as shown above.
+If any command fails, install the missing tool as shown below.
 
-### Linux
+> **Tip:** On Linux, use your package manager (e.g., apt for Ubuntu/Debian) to install packages.
 | Tool         | What it's for                        | Install Command              |
 |--------------|--------------------------------------|------------------------------|
 | git          | Downloading the project              | `sudo apt install git`           |
@@ -93,17 +97,6 @@ If any command fails, install the missing tool as shown above.
 | vcpkg        | C++ package manager                  | See below                    |
 | libtcod      | Terminal graphics library            | Installed via vcpkg          |
 
-> **Tip:** On Linux, use your package manager (e.g., apt for Ubuntu/Debian) to install packages.
-
-#### Check if you have the tools (Linux):
-```sh
-git --version
-cmake --version
-pkg-config --version
-ninja --version
-```
-If any command fails, install the missing tool as shown above.
-
 And for Linux, you can install all the essentials with:
 ```sh
 sudo apt update
@@ -111,6 +104,14 @@ sudo apt install build-essential pkg-config cmake git ninja-build
 ```
 
 ### Windows
+
+Check if you have the tools (Windows):
+```powershell
+git --version
+cmake --version
+```
+If any command fails, install the missing tool as shown above.
+
 | Tool         | What it's for                        | Install Command/Link         |
 |--------------|--------------------------------------|------------------------------|
 | git          | Downloading the project              | [Download](https://git-scm.com/download/win) |
@@ -121,13 +122,6 @@ sudo apt install build-essential pkg-config cmake git ninja-build
 | libtcod      | Terminal graphics library            | Installed via vcpkg          |
 
 > **Tip:** On Windows, use the provided links to download and install the tools.
-
-#### Check if you have the tools (Windows):
-```powershell
-git --version
-cmake --version
-```
-If any command fails, install the missing tool as shown above.
 
 ---
 
