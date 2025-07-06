@@ -33,7 +33,7 @@ First, you need to get a copy of this project on your computer. Open your termin
 ```sh
 # Clone the repository into your home directory for easy access
 cd ~
-git clone https://github.com/yourusername/C-Class-Game.git C-CLASS-GAME
+git clone https://github.com/k-petricusic/C-Class-Game.git C-CLASS-GAME
 cd C-CLASS-GAME
 ```
 
@@ -41,7 +41,7 @@ cd C-CLASS-GAME
 ```powershell
 # Clone the repository into your C: drive for easy access
 cd C:\
-git clone https://github.com/yourusername/C-Class-Game.git C-CLASS-GAME
+git clone https://github.com/k-petricusic/C-Class-Game.git C-CLASS-GAME
 cd C:\C-CLASS-GAME
 ```
 
