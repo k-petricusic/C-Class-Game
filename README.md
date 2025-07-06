@@ -87,6 +87,7 @@ ninja --version
 If any command fails, install the missing tool as shown below.
 
 > **Tip:** On Linux, use your package manager (e.g., apt for Ubuntu/Debian) to install packages.
+
 | Tool         | What it's for                        | Install Command              |
 |--------------|--------------------------------------|------------------------------|
 | git          | Downloading the project              | `sudo apt install git`           |
