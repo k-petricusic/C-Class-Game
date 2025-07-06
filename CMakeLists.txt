@@ -47,8 +47,17 @@ target_link_libraries(game PRIVATE SDL3::SDL3 libtcod::libtcod)
 # MSVC = Microsoft Visual C++
 # /W4 = All warnings enabled
 # /WX = Treat warnings as errors
+# -Wall -Wextra -pedantic = All warnings enabled but not for Release builds
 if (MSVC)
-    target_compile_options(game PRIVATE /W4 /WX)
-else() # Enables all warnings and treats them as errors
-    target_compile_options(game PRIVATE -Wall -Wextra -pedantic -Werror)
+    if(NOT CMAKE_BUILD_TYPE STREQUAL "Release")
+        target_compile_options(game PRIVATE /W4 /WX)
+    else()
+        target_compile_options(game PRIVATE /W4)
+    endif()
+else()
+    if(NOT CMAKE_BUILD_TYPE STREQUAL "Release")
+        target_compile_options(game PRIVATE -Wall -Wextra -pedantic -Werror)
+    else()
+        target_compile_options(game PRIVATE -Wall -Wextra -pedantic)
+    endif()
 endif()

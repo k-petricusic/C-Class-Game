@@ -8,6 +8,10 @@
 #include "../include/Screen.h"
 #include "../include/GuardMovementStrategies.h"
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 Board_Screen::Board_Screen(int lvl) : _level(lvl) {
     std::cout << "Board_Screen _level: " << _level << std::endl;
     std::string level_path = get_executable_dir() + "/levels.txt";
