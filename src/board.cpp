@@ -8,6 +8,7 @@
 
 #include "../include/Screen.h"
 #include "../include/GuardMovementStrategies.h"
+#undef min
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -55,7 +56,7 @@ void Board_Screen::show(tcod::Console& console) {
     for (const auto& guard : _guards) {
         int gx = static_cast<int>(guard.get_x());
         int gy = static_cast<int>(guard.get_y());
-        int dir = guard.get_direction(); // 1=up, 2=right, 3=down, 4=left
+        int dir = static_cast<int>(guard.get_direction()); // 1=up, 2=right, 3=down, 4=left
 
         // Facing vector
         int fx = 0, fy = 0;
@@ -273,7 +274,7 @@ bool Board_Screen::player_in_guard_sight() const {
     for (const auto& guard : _guards) {
         int gx = static_cast<int>(guard.get_x());
         int gy = static_cast<int>(guard.get_y());
-        int dir = guard.get_direction();
+        int dir = static_cast<int>(guard.get_direction());
 
         int fx = 0, fy = 0;
         switch (dir) {
