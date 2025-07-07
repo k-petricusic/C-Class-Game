@@ -4,9 +4,11 @@
 #include <chrono>
 #include <iostream>
 #include <cmath>
+#include <sstream>
 
 #include "../include/Screen.h"
 #include "../include/GuardMovementStrategies.h"
+#undef min
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -19,20 +21,20 @@ Board_Screen::Board_Screen(int lvl) : _level(lvl) {
 }
 
 void Board_Screen::show(tcod::Console& console) {
-    int board_height = static_cast<int>(_board.size());
-    int board_width = board_height > 0 ? static_cast<int>(_board[0].size()) : 0;
+    size_t board_height = _board.size();
+    size_t board_width = board_height > 0 ? _board[0].size() : 0;
     int console_height = console.get_height();
     int console_width = console.get_width();
 
-    int y_offset = (console_height - board_height) / 2;
-    int x_offset = (console_width - board_width) / 2;
+    int y_offset = (console_height - static_cast<int>(board_height)) / 2;
+    int x_offset = (console_width - static_cast<int>(board_width)) / 2;
 
-    for (int i = 0; i < board_height; ++i) {
-        for (int j = 0; j < board_width; ++j) {
-            int draw_x = x_offset + j;
-            int draw_y = y_offset + i;
-            if (static_cast<int>(draw_x) >= 0 && static_cast<int>(draw_x) < static_cast<int>(console_width) &&
-                static_cast<int>(draw_y) >= 0 && static_cast<int>(draw_y) < static_cast<int>(console_height)) {
+    for (size_t i = 0; i < board_height; ++i) {
+        for (size_t j = 0; j < board_width; ++j) {
+            int draw_x = x_offset + static_cast<int>(j);
+            int draw_y = y_offset + static_cast<int>(i);
+            if (draw_x >= 0 && draw_x < console_width &&
+                draw_y >= 0 && draw_y < console_height) {
                 console.at({draw_x, draw_y}).ch = _board[i][j];
                 console.at({draw_x, draw_y}).fg = tcod::ColorRGB{255, 255, 255};
                 console.at({draw_x, draw_y}).bg = tcod::ColorRGB{0, 0, 0};
@@ -54,7 +56,7 @@ void Board_Screen::show(tcod::Console& console) {
     for (const auto& guard : _guards) {
         int gx = static_cast<int>(guard.get_x());
         int gy = static_cast<int>(guard.get_y());
-        int dir = guard.get_direction(); // 1=up, 2=right, 3=down, 4=left
+        int dir = static_cast<int>(guard.get_direction()); // 1=up, 2=right, 3=down, 4=left
 
         // Facing vector
         int fx = 0, fy = 0;
@@ -71,7 +73,7 @@ void Board_Screen::show(tcod::Console& console) {
                 int x = gx + dx;
                 int y = gy + dy;
                 // Check bounds and radius
-                if (x < 0 || x >= board_width || y < 0 || y >= board_height)
+                if (x < 0 || static_cast<size_t>(x) >= board_width || y < 0 || static_cast<size_t>(y) >= board_height)
                     continue;
                 if (dx*dx + dy*dy > 25 || (dx == 0 && dy == 0))
                     continue;
@@ -221,8 +223,7 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
         ++row_index;
     }
 
-    std::getline(file, line); // Reads the next line after the board
-    if (line == "GUARD_STRATEGIES") {
+    if (std::getline(file, line) && line == "GUARD_STRATEGIES") {
         while (std::getline(file, line) && !line.empty() && line[0] != '#') {
             std::istringstream iss(line);
             size_t x, y, direction;
@@ -273,7 +274,7 @@ bool Board_Screen::player_in_guard_sight() const {
     for (const auto& guard : _guards) {
         int gx = static_cast<int>(guard.get_x());
         int gy = static_cast<int>(guard.get_y());
-        int dir = guard.get_direction();
+        int dir = static_cast<int>(guard.get_direction());
 
         int fx = 0, fy = 0;
         switch (dir) {
