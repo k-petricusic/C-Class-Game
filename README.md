@@ -248,7 +248,7 @@ If that doesn't work, look for a `Debug` folder inside `build` and double click 
 
 ## Contributing
 
-# How to contribute via PR
+**How to contribute via PR**
 
 Contributions should follow these guidelines:
 1. Fork the repo  
