@@ -15,7 +15,6 @@ A terminal-based C++ project.
 - [Running the Game](#running-the-game)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
-- [License](#license)
 
 ---
 
@@ -249,7 +248,15 @@ If that doesn't work, look for a `Debug` folder inside `build` and double click 
 
 ## Contributing
 
-Contributions are welcome! Please fork the repository, make your changes, and submit a pull request. For major changes, open an issue first to discuss what you'd like to change.
+**How to contribute via PR**
+
+Contributions should follow these guidelines:
+1. Fork the repo  
+2. Clone your fork  
+3. Create a new branch  
+4. Make your changes, then `git push origin your-branch-name`  
+5. On GitHub, click "New pull request" to propose your changes. If you need to compare across forks, there's a button for that at the top of the new pull request window.
+
 
 Become a beta tester by playing our game and filling out this form:  
 https://docs.google.com/forms/d/e/1FAIpQLSe6YKlQTI7Qc4jxVJvfyrBUSd9kNMXNq38Cy_ZB0f-7iAq42w/viewform?usp=dialog
