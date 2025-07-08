@@ -237,6 +237,18 @@ If that doesn't work, look for a `Debug` folder inside `build` and double click 
       Remove-Item -Recurse -Force build
       ./build.ps1
       ```
+- If you see errors about `xcodebuild` or missing compilers, make sure you have the full Xcode app installed (search Xcode in the app store). Then fully enable it:
+  ```sh
+  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+  ```
+- If you get errors about outdated tools, update them:
+  ```sh
+  softwareupdate --all --install --force
+  ```
+- If vcpkg fails to detect the compiler, try cleaning the build trees:
+  ```sh
+  rm -rf buildtrees
+  ```
 - **Command not found?**
   - Make sure the tool is installed and your terminal is restarted.
 - **Permissions error on Windows?**
