@@ -177,7 +177,7 @@ If any command fails, install the missing tool as shown above.
 
    If you get a "triplet error" after installing libtcod, install Visual C++ Build Tools:
    1. Go to https://visualstudio.microsoft.com/visual-cpp-build-tools/
-   2. Download and install "Desktop development with C++"
+   2. Follow the steps to install, then click on the "Desktop development with C++" option when it pops up in the top left
    3. Restart your terminal and try again.
 
 2. **Build the project**
