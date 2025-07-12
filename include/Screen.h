@@ -72,6 +72,7 @@ private:
     std::vector<std::vector<char>> _board;
     // Player = "O", Guard = "G", Wall = "|", Empty = " "
 
+    bool _level_started = false;
     int _level;
 
     std::chrono::steady_clock::time_point last_move_time = std::chrono::steady_clock::now();

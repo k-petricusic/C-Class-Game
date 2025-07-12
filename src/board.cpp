@@ -135,6 +135,21 @@ void Board_Screen::show(tcod::Console& console) {
             console.at({draw_x, draw_y}).ch = 'O';
         }
     }
+
+    // Draw text above the board
+        if (!_level_started) {
+        std::string msg = "Press any key to start!";
+        int msg_x = (console_width - msg.size()) / 2;
+        int msg_y = y_offset - 2; // 2 lines above the board
+
+        if (msg_y >= 0) {
+            for (size_t i = 0; i < msg.size(); ++i) {
+                console.at({msg_x + static_cast<int>(i), msg_y}).ch = msg[i];
+                console.at({msg_x + static_cast<int>(i), msg_y}).fg = tcod::ColorRGB{0, 255, 0}; // green
+                console.at({msg_x + static_cast<int>(i), msg_y}).bg = tcod::ColorRGB{0, 0, 0};
+            }
+        }
+    }
 }
 
 bool Board_Screen::move(Movable& obj, size_t direction) {
@@ -257,18 +272,22 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
 }
 
 void Board_Screen::use_user_input(Screen*& current_screen, const SDL_Event& event) {
-    if (event.type == SDL_EVENT_KEY_DOWN) {
-        switch (event.key.key) {
-            case SDLK_W: pending_move_direction = 1; break;
-            case SDLK_D: pending_move_direction = 2; break;
-            case SDLK_S: pending_move_direction = 3; break;
-            case SDLK_A: pending_move_direction = 4; break;
-            case SDLK_Q:
-                delete current_screen;
-                current_screen = new Level_Select_Screen();
-                break;
-            default: break;
+    if (!_level_started) {
+        if (event.type == SDL_EVENT_KEY_DOWN) {
+            _level_started = true;
         }
+        return; // Don't process other input until level started
+    }
+    switch (event.key.key) {
+        case SDLK_W: case SDLK_UP: pending_move_direction = 1; break;
+        case SDLK_D: case SDLK_RIGHT: pending_move_direction = 2; break;
+        case SDLK_S: case SDLK_DOWN: pending_move_direction = 3; break;
+        case SDLK_A: case SDLK_LEFT: pending_move_direction = 4; break;
+        case SDLK_Q:
+            delete current_screen;
+            current_screen = new Level_Select_Screen();
+            break;
+        default: break;
     }
 }
 
@@ -333,6 +352,7 @@ bool Board_Screen::player_in_guard_sight() const {
 }
 
 void Board_Screen::update(Screen*& current_screen) {
+    if (!_level_started) return;
     auto now = std::chrono::steady_clock::now();
     if (pending_move_direction != 0 &&
         std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {

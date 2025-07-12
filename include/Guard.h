@@ -16,7 +16,7 @@ private:
 public:
 
     Guard(size_t x = 0, size_t y = 0, size_t direction = 1, IGuardMovementStrategy* strategy = nullptr, bool see_through_walls = false)
-        : Movable(x, y), _guard_direction(direction), _movement_strategy(strategy), _see_through_walls(see_through_walls) {}
+        : Movable(x, y), _guard_direction(direction), _see_through_walls(see_through_walls), _movement_strategy(strategy) {}
     
     size_t get_direction() const { return _guard_direction; }
 
