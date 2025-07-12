@@ -97,4 +97,6 @@ public:
     bool player_in_guard_sight() const;
 
     void update(Screen*& current_screen); // Add this method for ticking logic in the main loop
+
+    bool has_line_of_sight(int x1, int y1, int x2, int y2) const;
 };

@@ -98,13 +98,14 @@ void Board_Screen::show(tcod::Console& console) {
                 if (dot < -1.0) dot = -1.0;
                 double angle = std::acos(dot) * 180.0 / M_PI; // in degrees
 
-                if (angle <= 45.0) {
+                if (angle <= 45.0 && has_line_of_sight(gx, gy, x, y)) {
                     int draw_x = x_offset + x;
                     int draw_y = y_offset + y;
                     if (static_cast<int>(draw_x) >= 0 && static_cast<int>(draw_x) < static_cast<int>(console_width) &&
                         static_cast<int>(draw_y) >= 0 && static_cast<int>(draw_y) < static_cast<int>(console_height)) {
                         // Color the tile yellow for sight
                         console.at({draw_x, draw_y}).bg = tcod::ColorRGB{255, 255, 0};
+
                     }
                 }
             }
@@ -304,7 +305,7 @@ bool Board_Screen::player_in_guard_sight() const {
         if (dot < -1.0) dot = -1.0;
         double angle = std::acos(dot) * 180.0 / M_PI;
 
-        if (angle <= 45.0) {
+        if (angle <= 45.0 && has_line_of_sight(gx, gy, px, py)) {
             return true;
         }
     }
@@ -335,3 +336,30 @@ void Board_Screen::update(Screen*& current_screen) {
     }
 
 }
+
+bool Board_Screen::has_line_of_sight(int x1, int y1, int x2, int y2) const {
+    int dx = std::abs(x2 - x1);
+    int dy = std::abs(y2 - y1);
+    int sx = (x1 < x2) ? 1 : -1;
+    int sy = (y1 < y2) ? 1 : -1;
+    int err = dx - dy;
+    if (_board[y2][x2] == '#') return false;
+    if (_board[y2][x2 - sx] == '#' && _board[y2 - sy][x2] == '#') return false; //Weird edge case when you're LOS is perpendicular with a diagonal wall
+
+    while (x1 != x2 || y1 != y2) {
+        if (_board[y1][x1] == '#') return false;
+        if (_board[y1][x1 - sx] == '#' || _board[y1 - sy][x1] == '#') return false; //Weird edge case when you're LOS is perpendicular with a diagonal wall
+
+        int e2 = 2 * err;
+        if (e2 > -dy) {
+            err -= dy;
+            x1 += sx;
+        }
+        if (e2 < dx) {
+            err += dx;
+            y1 += sy;
+        }
+    }
+    return true;
+}
+
