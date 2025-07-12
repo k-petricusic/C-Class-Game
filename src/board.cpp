@@ -14,7 +14,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-Board_Screen::Board_Screen(int lvl) : _level(lvl) {
+Board_Screen::Board_Screen(int lvl) : _level(lvl), _held_keys(4, false) {
     std::cout << "Board_Screen _level: " << _level << std::endl;
     std::string level_path = get_executable_dir() + "/levels.txt";
     read_level_from_file(level_path);
@@ -276,13 +276,35 @@ void Board_Screen::use_user_input(Screen*& current_screen, const SDL_Event& even
         if (event.type == SDL_EVENT_KEY_DOWN) {
             _level_started = true;
         }
-        return; // Don't process other input until level started
     }
+
+    if (event.type == SDL_EVENT_KEY_DOWN) {
+        int dir = 0;
+        switch (event.key.key) {
+            case SDLK_W: case SDLK_UP:    dir = 1; break;
+            case SDLK_D: case SDLK_RIGHT: dir = 2; break;
+            case SDLK_S: case SDLK_DOWN:  dir = 3; break;
+            case SDLK_A: case SDLK_LEFT:  dir = 4; break;
+        }
+        if (dir) {
+            _held_keys[dir-1] = true;
+            _pressed_key = dir;
+        }
+    }
+    if (event.type == SDL_EVENT_KEY_UP) {
+        int dir = 0;
+        switch (event.key.key) {
+            case SDLK_W: case SDLK_UP:    dir = 1; break;
+            case SDLK_D: case SDLK_RIGHT: dir = 2; break;
+            case SDLK_S: case SDLK_DOWN:  dir = 3; break;
+            case SDLK_A: case SDLK_LEFT:  dir = 4; break;
+        }
+        if (dir) {
+            _held_keys[dir-1] = false;
+        }
+    }
+
     switch (event.key.key) {
-        case SDLK_W: case SDLK_UP: pending_move_direction = 1; break;
-        case SDLK_D: case SDLK_RIGHT: pending_move_direction = 2; break;
-        case SDLK_S: case SDLK_DOWN: pending_move_direction = 3; break;
-        case SDLK_A: case SDLK_LEFT: pending_move_direction = 4; break;
         case SDLK_Q:
             delete current_screen;
             current_screen = new Level_Select_Screen();
@@ -352,28 +374,40 @@ bool Board_Screen::player_in_guard_sight() const {
 }
 
 void Board_Screen::update(Screen*& current_screen) {
-    if (!_level_started) return;
     auto now = std::chrono::steady_clock::now();
-    if (pending_move_direction != 0 &&
-        std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
-        move(_players[0], pending_move_direction);
-        pending_move_direction = 0;
+    if (!_level_started) return;
+    
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
+        if (_pressed_key != 0) {
+            if (!_held_keys[_pressed_key - 1]) {
+                move(_players[0], _pressed_key);
+                _pressed_key = 0;
+            }
+        }
+
+        for (size_t dir = 0; dir < _held_keys.size(); ++dir) {
+            if (_held_keys[dir]) {
+                move(_players[0], dir + 1); // 1=up, 2=right, 3=down, 4=left
+            }
+        }
+
         if (_board[_players[0].get_y()][_players[0].get_x()] == 'E') {
             delete current_screen;
             current_screen = new Game_Won_Screen(_level);
             return;
         }
-    } 
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
+
         update_guards();
         last_move_time = now;
+
+        if (player_in_guard_sight()) {
+            delete current_screen;
+            current_screen = new Game_Over_Screen();
+            return;
+        }
     }
 
-    if (player_in_guard_sight()) {
-        delete current_screen;
-        current_screen = new Game_Over_Screen();
-        return;
-    }
+    
 
 }
 

@@ -76,7 +76,10 @@ private:
     int _level;
 
     std::chrono::steady_clock::time_point last_move_time = std::chrono::steady_clock::now();
-    int pending_move_direction = 0;
+
+    // 0 = no move, 1 = up, 2 = right, 3 = down, 4 = left
+    int _pressed_key = 0;
+    std::vector<bool> _held_keys;
 
 public:
     Board_Screen(int lvl);
