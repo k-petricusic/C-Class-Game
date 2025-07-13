@@ -6,10 +6,10 @@
 #include <iostream>
 #include <string>
 #include <thread>
-#include <chrono>
 
 // --------- Title screen implementation ---------
 void Title_Screen::show(tcod::Console& console) {
+    console.clear();
     tcod::print(console, {1, 1}, "Welcome to the Game!", std::nullopt, std::nullopt);
     tcod::print(console, {1, 3}, "Press 's' to start or 'q' to quit.", std::nullopt, std::nullopt);
     if (error_message != "") {
@@ -37,6 +37,7 @@ void Title_Screen::use_user_input(Screen*& current_screen, const SDL_Event& even
 
 // --------- Level Select screen implementation ---------
 void Level_Select_Screen::show(tcod::Console& console) {
+    console.clear();
     tcod::print(console, {1, 1}, "Select a level:", std::nullopt, std::nullopt);
     tcod::print(console, {1, 3}, "1. Level 1", std::nullopt, std::nullopt);
     tcod::print(console, {1, 5}, "2. Level 2", std::nullopt, std::nullopt);
@@ -101,6 +102,7 @@ void Level_Select_Screen::use_user_input(Screen*& current_screen, const SDL_Even
 
 // --------- Game Won screen implementation ---------
 void Game_Won_Screen::show(tcod::Console& console) {
+    console.clear();
     tcod::print(console, {1, 1}, "You won! Congratulations!", std::nullopt, std::nullopt);
     tcod::print(console, {1, 3}, "Press 'q' to go back to the level select screen.", std::nullopt, std::nullopt);
     //tcod::print(console, {1, 5}, "Press 'r' to restart the level.", std::nullopt, std::nullopt);
@@ -111,6 +113,7 @@ void Game_Won_Screen::show(tcod::Console& console) {
 }
 
 void Game_Won_Screen::use_user_input(Screen*& current_screen, const SDL_Event& event) {
+
     if (event.type == SDL_EVENT_KEY_DOWN) {
         switch (event.key.key) {
             case SDLK_Q:
@@ -133,6 +136,7 @@ void Game_Won_Screen::use_user_input(Screen*& current_screen, const SDL_Event& e
 }
 
 void Game_Over_Screen::show(tcod::Console& console) {
+    console.clear();
     tcod::print(console, {1, 1}, "Game Over! You were caught by a guard.", std::nullopt, std::nullopt);
     tcod::print(console, {1, 3}, "Press 'q' to go back to the level select screen.", std::nullopt, std::nullopt);
 }

@@ -41,7 +41,14 @@ public:
 
 // --------- Game Over screen class ---------
 class Game_Over_Screen : public Screen {
-public:
+private:
+    int _level;
+
+    public:
+        Game_Over_Screen(int level) : _level(level) {}
+
+    int get_level() const { return _level; }
+
     void show(tcod::Console& console) override;
     void use_user_input(Screen*& current_screen, const SDL_Event& event) override;
 };
@@ -50,7 +57,8 @@ public:
 class Game_Won_Screen : public Screen {
     private:
         int _level;
-    
+
+
     public:
         Game_Won_Screen(int level) : _level(level) {}
 
@@ -81,6 +89,10 @@ private:
     int _pressed_key = 0;
     std::vector<bool> _held_keys;
 
+    bool _pending_loss = false;
+    bool _pending_win = false;
+    std::chrono::steady_clock::time_point _pending_transition_time;
+
 public:
     Board_Screen(int lvl);
 
@@ -100,7 +112,7 @@ public:
 
     bool player_in_guard_sight() const;
 
-    void update(Screen*& current_screen); // Add this method for ticking logic in the main loop
+    void update(Screen*& current_screen);
 
     bool has_line_of_sight(int x1, int y1, int x2, int y2) const;
 };

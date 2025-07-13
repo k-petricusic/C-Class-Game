@@ -40,7 +40,6 @@ int main(int argc, char* argv[]) {
     Screen* current_screen = new Title_Screen();
 
     while (true) {
-        console.clear();
         current_screen->show(console);
         context.present(console);
 

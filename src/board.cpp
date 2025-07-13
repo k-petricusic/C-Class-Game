@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cmath>
 #include <sstream>
+#include <thread> // Added for std::this_thread::sleep_for
 
 #include "../include/Screen.h"
 #include "../include/GuardMovementStrategies.h"
@@ -21,6 +22,8 @@ Board_Screen::Board_Screen(int lvl) : _level(lvl), _held_keys(4, false) {
 }
 
 void Board_Screen::show(tcod::Console& console) {
+    console.clear();
+
     size_t board_height = _board.size();
     size_t board_width = board_height > 0 ? _board[0].size() : 0;
     int console_height = console.get_height();
@@ -124,6 +127,19 @@ void Board_Screen::show(tcod::Console& console) {
                 }
             }
         }
+
+        int player_x = static_cast<int>(_players[0].get_x()) + x_offset;
+        int player_y = static_cast<int>(_players[0].get_y()) + y_offset;
+        // Highlight player for win/loss if pending
+        if (_pending_win) {
+            console.at({player_x, player_y}).fg = 
+            tcod::ColorRGB{0, 255, 0}; // Green for win
+        }
+        if (_pending_loss) {
+            console.at({player_x, player_y}).fg = 
+            tcod::ColorRGB{255, 0, 0}; // Red for loss
+        }
+
     }
 
     // Draw players
@@ -376,7 +392,26 @@ bool Board_Screen::player_in_guard_sight() const {
 void Board_Screen::update(Screen*& current_screen) {
     auto now = std::chrono::steady_clock::now();
     if (!_level_started) return;
-    
+
+    // Handle pending win/loss state
+    if (_pending_win || _pending_loss) {
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - _pending_transition_time).count() >= 1500) {
+            if (_pending_win) {
+                _pending_win = false;
+                delete current_screen;
+                current_screen = new Game_Won_Screen(_level);
+                return;
+            } else if (_pending_loss) {
+                _pending_loss = false;
+                delete current_screen;
+                current_screen = new Game_Over_Screen(_level);
+                return;
+            }
+        }
+        // Don't process further input/movement while pending
+        return;
+    }
+
     if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
         if (_pressed_key != 0) {
             if (!_held_keys[_pressed_key - 1]) {
@@ -392,8 +427,8 @@ void Board_Screen::update(Screen*& current_screen) {
         }
 
         if (_board[_players[0].get_y()][_players[0].get_x()] == 'E') {
-            delete current_screen;
-            current_screen = new Game_Won_Screen(_level);
+            _pending_win = true;
+            _pending_transition_time = std::chrono::steady_clock::now();
             return;
         }
 
@@ -401,14 +436,11 @@ void Board_Screen::update(Screen*& current_screen) {
         last_move_time = now;
 
         if (player_in_guard_sight()) {
-            delete current_screen;
-            current_screen = new Game_Over_Screen();
+            _pending_loss = true;
+            _pending_transition_time = std::chrono::steady_clock::now();
             return;
         }
     }
-
-    
-
 }
 
 bool Board_Screen::has_line_of_sight(int x1, int y1, int x2, int y2) const {
