@@ -1,4 +1,4 @@
-#include "GuardMovementStrategies.h"
+#include "../include/GuardMovementStrategies.h"
 #include <unordered_map>
 #include <functional>
 #include <random>

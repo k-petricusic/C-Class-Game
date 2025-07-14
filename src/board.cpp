@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cmath>
 #include <sstream>
+#include <thread> // Added for std::this_thread::sleep_for
 
 #include "../include/Screen.h"
 #include "../include/GuardMovementStrategies.h"
@@ -14,13 +15,15 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-Board_Screen::Board_Screen(int lvl) : _level(lvl) {
+Board_Screen::Board_Screen(int lvl) : _level(lvl), _held_keys(4, false) {
     std::cout << "Board_Screen _level: " << _level << std::endl;
     std::string level_path = get_executable_dir() + "/levels.txt";
     read_level_from_file(level_path);
 }
 
 void Board_Screen::show(tcod::Console& console) {
+    console.clear();
+
     size_t board_height = _board.size();
     size_t board_width = board_height > 0 ? _board[0].size() : 0;
     int console_height = console.get_height();
@@ -124,6 +127,19 @@ void Board_Screen::show(tcod::Console& console) {
                 }
             }
         }
+
+        int player_x = static_cast<int>(_players[0].get_x()) + x_offset;
+        int player_y = static_cast<int>(_players[0].get_y()) + y_offset;
+        // Highlight player for win/loss if pending
+        if (_pending_win) {
+            console.at({player_x, player_y}).fg = 
+            tcod::ColorRGB{0, 255, 0}; // Green for win
+        }
+        if (_pending_loss) {
+            console.at({player_x, player_y}).fg = 
+            tcod::ColorRGB{255, 0, 0}; // Red for loss
+        }
+
     }
 
     // Draw players
@@ -133,6 +149,21 @@ void Board_Screen::show(tcod::Console& console) {
         if (static_cast<int>(draw_x) >= 0 && static_cast<int>(draw_x) < static_cast<int>(console_width) &&
             static_cast<int>(draw_y) >= 0 && static_cast<int>(draw_y) < static_cast<int>(console_height)) {
             console.at({draw_x, draw_y}).ch = 'O';
+        }
+    }
+
+    // Draw text above the board
+    if (!_level_started) {
+        std::string msg = "Press any key to start!";
+        int msg_x = (console_width - msg.size()) / 2;
+        int msg_y = y_offset - 2; // 2 lines above the board
+
+        if (msg_y >= 0) {
+            for (size_t i = 0; i < msg.size(); ++i) {
+                console.at({msg_x + static_cast<int>(i), msg_y}).ch = msg[i];
+                console.at({msg_x + static_cast<int>(i), msg_y}).fg = tcod::ColorRGB{0, 255, 0}; // green
+                console.at({msg_x + static_cast<int>(i), msg_y}).bg = tcod::ColorRGB{0, 0, 0};
+            }
         }
     }
 }
@@ -257,18 +288,44 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
 }
 
 void Board_Screen::use_user_input(Screen*& current_screen, const SDL_Event& event) {
-    if (event.type == SDL_EVENT_KEY_DOWN) {
-        switch (event.key.key) {
-            case SDLK_W: pending_move_direction = 1; break;
-            case SDLK_D: pending_move_direction = 2; break;
-            case SDLK_S: pending_move_direction = 3; break;
-            case SDLK_A: pending_move_direction = 4; break;
-            case SDLK_Q:
-                delete current_screen;
-                current_screen = new Level_Select_Screen();
-                break;
-            default: break;
+    if (!_level_started) {
+        if (event.type == SDL_EVENT_KEY_DOWN) {
+            _level_started = true;
         }
+    }
+
+    if (event.type == SDL_EVENT_KEY_DOWN) {
+        int dir = 0;
+        switch (event.key.key) {
+            case SDLK_W: case SDLK_UP:    dir = 1; break;
+            case SDLK_D: case SDLK_RIGHT: dir = 2; break;
+            case SDLK_S: case SDLK_DOWN:  dir = 3; break;
+            case SDLK_A: case SDLK_LEFT:  dir = 4; break;
+        }
+        if (dir) {
+            _held_keys[dir-1] = true;
+            _pressed_key = dir;
+        }
+    }
+    if (event.type == SDL_EVENT_KEY_UP) {
+        int dir = 0;
+        switch (event.key.key) {
+            case SDLK_W: case SDLK_UP:    dir = 1; break;
+            case SDLK_D: case SDLK_RIGHT: dir = 2; break;
+            case SDLK_S: case SDLK_DOWN:  dir = 3; break;
+            case SDLK_A: case SDLK_LEFT:  dir = 4; break;
+        }
+        if (dir) {
+            _held_keys[dir-1] = false;
+        }
+    }
+
+    switch (event.key.key) {
+        case SDLK_ESCAPE:
+            delete current_screen;
+            current_screen = new Level_Select_Screen();
+            break;
+        default: break;
     }
 }
 
@@ -334,27 +391,56 @@ bool Board_Screen::player_in_guard_sight() const {
 
 void Board_Screen::update(Screen*& current_screen) {
     auto now = std::chrono::steady_clock::now();
-    if (pending_move_direction != 0 &&
-        std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
-        move(_players[0], pending_move_direction);
-        pending_move_direction = 0;
-        if (_board[_players[0].get_y()][_players[0].get_x()] == 'E') {
-            delete current_screen;
-            current_screen = new Game_Won_Screen(_level);
-            return;
-        }
-    } 
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
-        update_guards();
-        last_move_time = now;
-    }
+    if (!_level_started) return;
 
-    if (player_in_guard_sight()) {
-        delete current_screen;
-        current_screen = new Game_Over_Screen();
+    // Handle pending win/loss state
+    if (_pending_win || _pending_loss) {
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - _pending_transition_time).count() >= 1500) {
+            if (_pending_win) {
+                _pending_win = false;
+                delete current_screen;
+                current_screen = new Game_Won_Screen(_level);
+                return;
+            } else if (_pending_loss) {
+                _pending_loss = false;
+                delete current_screen;
+                current_screen = new Game_Over_Screen(_level);
+                return;
+            }
+        }
+        // Don't process further input/movement while pending
         return;
     }
 
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - _last_move_time).count() >= 250) {
+        if (_pressed_key != 0) {
+            if (!_held_keys[_pressed_key - 1]) {
+                move(_players[0], _pressed_key);
+                _pressed_key = 0;
+            }
+        }
+
+        for (size_t dir = 0; dir < _held_keys.size(); ++dir) {
+            if (_held_keys[dir]) {
+                move(_players[0], dir + 1); // 1=up, 2=right, 3=down, 4=left
+            }
+        }
+
+        if (_board[_players[0].get_y()][_players[0].get_x()] == 'E') {
+            _pending_win = true;
+            _pending_transition_time = std::chrono::steady_clock::now();
+            return;
+        }
+
+        update_guards();
+        _last_move_time = now;
+
+        if (player_in_guard_sight()) {
+            _pending_loss = true;
+            _pending_transition_time = std::chrono::steady_clock::now();
+            return;
+        }
+    }
 }
 
 bool Board_Screen::has_line_of_sight(int x1, int y1, int x2, int y2) const {
