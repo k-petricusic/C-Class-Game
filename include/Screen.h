@@ -38,8 +38,14 @@ private:
     std::vector<std::vector<std::string>> _tutorial_tasks;
     std::vector<std::vector<std::string>> _completed_tasks;
     size_t _task_phase = 0;
+    size_t _time_after_task_phase = 0;
 
+    static constexpr char background = ' ';
     std::vector<std::vector<char>> _tutorial_board;
+
+    // 0 = no move, 1 = up, 2 = right, 3 = down, 4 = left
+    int _pressed_key = 0;
+    std::vector<bool> _held_keys;
 
     std::vector<Guard> _tutorial_guards;
     std::vector<Player> _tutorial_players;
@@ -47,6 +53,8 @@ private:
     std::chrono::steady_clock::time_point _last_move_time = std::chrono::steady_clock::now();
 
 public:
+    Tutorial_Screen();
+
     void show(tcod::Console& console) override;
     void use_user_input(Screen*& current_screen, const SDL_Event& event) override;
 
@@ -56,6 +64,8 @@ public:
 
     size_t get_x_offset(tcod::Console& console, std::string message) const;
     size_t get_y_offset(tcod::Console& console, std::string message) const;
+
+    bool has_line_of_sight(int x1, int y1, int x2, int y2) const;
 };
 
 // --------- Level Select screen class ---------
