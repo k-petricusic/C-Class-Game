@@ -153,7 +153,7 @@ void Board_Screen::show(tcod::Console& console) {
     }
 
     // Draw text above the board
-        if (!_level_started) {
+    if (!_level_started) {
         std::string msg = "Press any key to start!";
         int msg_x = (console_width - msg.size()) / 2;
         int msg_y = y_offset - 2; // 2 lines above the board
@@ -321,7 +321,7 @@ void Board_Screen::use_user_input(Screen*& current_screen, const SDL_Event& even
     }
 
     switch (event.key.key) {
-        case SDLK_Q:
+        case SDLK_ESCAPE:
             delete current_screen;
             current_screen = new Level_Select_Screen();
             break;
@@ -412,7 +412,7 @@ void Board_Screen::update(Screen*& current_screen) {
         return;
     }
 
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_move_time).count() >= 250) {
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - _last_move_time).count() >= 250) {
         if (_pressed_key != 0) {
             if (!_held_keys[_pressed_key - 1]) {
                 move(_players[0], _pressed_key);
@@ -433,7 +433,7 @@ void Board_Screen::update(Screen*& current_screen) {
         }
 
         update_guards();
-        last_move_time = now;
+        _last_move_time = now;
 
         if (player_in_guard_sight()) {
             _pending_loss = true;

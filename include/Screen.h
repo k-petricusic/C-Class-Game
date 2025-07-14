@@ -32,6 +32,32 @@ public:
     void use_user_input(Screen*& current_screen, const SDL_Event& event) override;
 };
 
+// --------- Tutorial screen class ---------
+class Tutorial_Screen : public Screen {
+private:
+    std::vector<std::vector<std::string>> _tutorial_tasks;
+    std::vector<std::vector<std::string>> _completed_tasks;
+    size_t _task_phase = 0;
+
+    std::vector<std::vector<char>> _tutorial_board;
+
+    std::vector<Guard> _tutorial_guards;
+    std::vector<Player> _tutorial_players;
+
+    std::chrono::steady_clock::time_point _last_move_time = std::chrono::steady_clock::now();
+
+public:
+    void show(tcod::Console& console) override;
+    void use_user_input(Screen*& current_screen, const SDL_Event& event) override;
+
+    bool move(Movable& movable, size_t direction);
+
+    void update(Screen*& current_screen);
+
+    size_t get_x_offset(tcod::Console& console, std::string message) const;
+    size_t get_y_offset(tcod::Console& console, std::string message) const;
+};
+
 // --------- Level Select screen class ---------
 class Level_Select_Screen : public Screen {
 public:
@@ -66,7 +92,7 @@ class Game_Won_Screen : public Screen {
 
         void show(tcod::Console& console) override;
         void use_user_input(Screen*& current_screen, const SDL_Event& event) override;
-    };
+};
     
 
 // --------- Board screen class ---------
@@ -83,7 +109,7 @@ private:
     bool _level_started = false;
     int _level;
 
-    std::chrono::steady_clock::time_point last_move_time = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point _last_move_time = std::chrono::steady_clock::now();
 
     // 0 = no move, 1 = up, 2 = right, 3 = down, 4 = left
     int _pressed_key = 0;
