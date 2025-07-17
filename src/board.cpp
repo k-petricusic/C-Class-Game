@@ -16,7 +16,6 @@
 #endif
 
 Board_Screen::Board_Screen(int lvl) : _level(lvl), _held_keys(4, false) {
-    std::cout << "Board_Screen _level: " << _level << std::endl;
     std::string level_path = get_executable_dir() + "/levels.txt";
     read_level_from_file(level_path);
 }
@@ -396,15 +395,16 @@ void Board_Screen::update(Screen*& current_screen) {
     // Handle pending win/loss state
     if (_pending_win || _pending_loss) {
         if (std::chrono::duration_cast<std::chrono::milliseconds>(now - _pending_transition_time).count() >= 1500) {
+            int level = _level; // Save the level number before deleting the current screen
             if (_pending_win) {
                 _pending_win = false;
                 delete current_screen;
-                current_screen = new Game_Won_Screen(_level);
+                current_screen = new Game_Won_Screen(level);
                 return;
             } else if (_pending_loss) {
                 _pending_loss = false;
                 delete current_screen;
-                current_screen = new Game_Over_Screen(_level);
+                current_screen = new Game_Over_Screen(level);
                 return;
             }
         }
