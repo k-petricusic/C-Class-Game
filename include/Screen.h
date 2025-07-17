@@ -81,7 +81,7 @@ private:
     int _level;
 
     public:
-        Game_Over_Screen(int level) : _level(level) {}
+    Game_Over_Screen(int level) : _level(level) {}
 
     int get_level() const { return _level; }
 

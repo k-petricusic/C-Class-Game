@@ -112,29 +112,30 @@ void Game_Won_Screen::show(tcod::Console& console) {
     console.clear();
     tcod::print(console, {1, 1}, "You won! Congratulations!", std::nullopt, std::nullopt);
     tcod::print(console, {1, 3}, "Press 'ESC' to go back to the level select screen.", std::nullopt, std::nullopt);
-    //tcod::print(console, {1, 5}, "Press 'r' to restart the level.", std::nullopt, std::nullopt);
-    //tcod::print(console, {1, 7}, "Press 'n' to go to the next level.", std::nullopt, std::nullopt);
+    tcod::print(console, {1, 5}, "Press 'r' to restart the level.", std::nullopt, std::nullopt);
+    tcod::print(console, {1, 7}, "Press 'n' to go to the next level.", std::nullopt, std::nullopt);
+    tcod::print(console, {1, 9}, "The current level is " + std::to_string(_level), std::nullopt, std::nullopt);
     if (error_message != "") {
-        tcod::print(console, {1, 5}, error_message, std::nullopt, std::nullopt);
+        tcod::print(console, {1, 11}, error_message, std::nullopt, std::nullopt);
     }
 }
 
 void Game_Won_Screen::use_user_input(Screen*& current_screen, const SDL_Event& event) {
-
     if (event.type == SDL_EVENT_KEY_DOWN) {
+        int level = _level;
         switch (event.key.key) {
             case SDLK_ESCAPE:
                 delete current_screen;
                 current_screen = new Level_Select_Screen();
                 return;
-            /*case SDLK_R:
+            case SDLK_R:
                 delete current_screen;
-                current_screen = new Board_Screen(_level);
+                current_screen = new Board_Screen(level);
                 return;
             case SDLK_N:
                 delete current_screen;
-                current_screen = new Board_Screen(_level + 1);
-                return;*/
+                current_screen = new Board_Screen(level + 1);
+                return;
             default:
                 error_message = "Invalid input. Please try again.";
                 return;
@@ -146,14 +147,24 @@ void Game_Over_Screen::show(tcod::Console& console) {
     console.clear();
     tcod::print(console, {1, 1}, "Game Over! You were caught by a guard.", std::nullopt, std::nullopt);
     tcod::print(console, {1, 3}, "Press 'ESC' to go back to the level select screen.", std::nullopt, std::nullopt);
+    tcod::print(console, {1, 5}, "Press 'r' to restart the level.", std::nullopt, std::nullopt);
+    tcod::print(console, {1, 7}, "The current level is " + std::to_string(_level), std::nullopt, std::nullopt);
+    if (error_message != "") {
+        tcod::print(console, {1, 9}, error_message, std::nullopt, std::nullopt);
+    }
 }
 
 void Game_Over_Screen::use_user_input(Screen*& current_screen, const SDL_Event& event) {
     if (event.type == SDL_EVENT_KEY_DOWN) {
+        int level = _level;
         switch (event.key.key) {
             case SDLK_ESCAPE:
                 delete current_screen;
                 current_screen = new Level_Select_Screen();
+                return;
+            case SDLK_R:
+                delete current_screen;
+                current_screen = new Board_Screen(level);
                 return;
             default:
                 error_message = "Invalid input. Please try again.";
