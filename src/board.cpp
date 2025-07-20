@@ -6,6 +6,7 @@
 #include <cmath>
 #include <sstream>
 #include <thread> // Added for std::this_thread::sleep_for
+#include <memory> // Added for std::unique_ptr
 
 #include "../include/Screen.h"
 #include "../include/GuardMovementStrategies.h"
@@ -52,83 +53,105 @@ void Board_Screen::show(tcod::Console& console) {
             static_cast<int>(draw_y) >= 0 && static_cast<int>(draw_y) < static_cast<int>(console_height)) {
             console.at({draw_x, draw_y}).ch = 'G';
         }
-    }
-    
-    // Draw guard sight cones (90-degree, radius 5)
-    for (const auto& guard : _guards) {
-        int gx = static_cast<int>(guard.get_x());
-        int gy = static_cast<int>(guard.get_y());
-        int dir = static_cast<int>(guard.get_direction()); // 1=up, 2=right, 3=down, 4=left
-
-        // Facing vector
-        int fx = 0, fy = 0;
-        switch (dir) {
-            case 1: fy = -1; break; // up
-            case 2: fx = 1; break;  // right
-            case 3: fy = 1; break;  // down
-            case 4: fx = -1; break; // left
-            default: break;
-        }
-
-        for (int dy = -5; dy <= 5; ++dy) {
-            for (int dx = -5; dx <= 5; ++dx) {
-                int x = gx + dx;
-                int y = gy + dy;
-                // Check bounds and radius
-                if (x < 0 || static_cast<size_t>(x) >= board_width || y < 0 || static_cast<size_t>(y) >= board_height)
-                    continue;
-                if (dx*dx + dy*dy > 25 || (dx == 0 && dy == 0))
-                    continue;
-
-                // Vector from guard to tile
-                double vx = dx;
-                double vy = dy;
-                // Normalize
-                double vlen = std::sqrt(vx*vx + vy*vy);
-                vx /= vlen;
-                vy /= vlen;
-
-                // Facing vector normalized
-                double flen = std::sqrt(fx*fx + fy*fy);
-                double fvx = (flen == 0) ? 0 : fx / flen;
-                double fvy = (flen == 0) ? 0 : fy / flen;
-
-                // Dot product gives cos(angle)
-                double dot = vx * fvx + vy * fvy;
-                // Clamp for safety
-                if (dot > 1.0) dot = 1.0;
-                if (dot < -1.0) dot = -1.0;
-                double angle = std::acos(dot) * 180.0 / M_PI; // in degrees
-                
-                if (guard.get_see_through_walls()) {
-                    if (angle <= 45.0 && has_line_of_sight(gx, gy, x, y)) {
-                        int draw_x = x_offset + x;
-                        int draw_y = y_offset + y;
-                        if (static_cast<int>(draw_x) >= 0 && static_cast<int>(draw_x) < static_cast<int>(console_width) &&
-                            static_cast<int>(draw_y) >= 0 && static_cast<int>(draw_y) < static_cast<int>(console_height)) {
-                            // Color the tile blue for see through
-                            console.at({draw_x, draw_y}).bg = tcod::ColorRGB{0, 0, 255};
-
-                        }
+        // Draw red tiles around chasing guard
+        if (guard.is_chasing_player()) {
+            for (int dy = -1; dy <= 1; ++dy) {
+                for (int dx = -1; dx <= 1; ++dx) {
+                    int rx = draw_x + dx;
+                    int ry = draw_y + dy;
+                    if ((dx != 0 || dy != 0) && rx >= 0 && rx < console_width && ry >= 0 && ry < console_height) {
+                        console.at({rx, ry}).bg = tcod::ColorRGB{255, 0, 0};
                     }
                 }
-                else {
-                    if (angle <= 45.0 && has_line_of_sight(gx, gy, x, y)) {
-                        int draw_x = x_offset + x;
-                        int draw_y = y_offset + y;
-                        if (static_cast<int>(draw_x) >= 0 && static_cast<int>(draw_x) < static_cast<int>(console_width) &&
-                            static_cast<int>(draw_y) >= 0 && static_cast<int>(draw_y) < static_cast<int>(console_height)) {
-                            // Color the tile yellow for sight
-                            console.at({draw_x, draw_y}).bg = tcod::ColorRGB{255, 255, 0};
+            }
+        } else {
+            int gx = static_cast<int>(guard.get_x());
+            int gy = static_cast<int>(guard.get_y());
+            int dir = static_cast<int>(guard.get_direction()); // 1=up, 2=right, 3=down, 4=left
 
+            // Facing vector
+            int fx = 0, fy = 0;
+            switch (dir) {
+                case 1: fy = -1; break; // up
+                case 2: fx = 1; break;  // right
+                case 3: fy = 1; break;  // down
+                case 4: fx = -1; break; // left
+                default: break;
+            }
+
+            for (int dy = -5; dy <= 5; ++dy) {
+                for (int dx = -5; dx <= 5; ++dx) {
+                    int x = gx + dx;
+                    int y = gy + dy;
+                    // Check bounds and radius
+                    if (x < 0 || static_cast<size_t>(x) >= board_width || y < 0 || static_cast<size_t>(y) >= board_height)
+                        continue;
+                    if (dx*dx + dy*dy > 25 || (dx == 0 && dy == 0))
+                        continue;
+
+                    // Vector from guard to tile
+                    double vx = dx;
+                    double vy = dy;
+                    // Normalize
+                    double vlen = std::sqrt(vx*vx + vy*vy);
+                    vx /= vlen;
+                    vy /= vlen;
+
+                    // Facing vector normalized
+                    double flen = std::sqrt(fx*fx + fy*fy);
+                    double fvx = (flen == 0) ? 0 : fx / flen;
+                    double fvy = (flen == 0) ? 0 : fy / flen;
+
+                    // Dot product gives cos(angle)
+                    double dot = vx * fvx + vy * fvy;
+                    // Clamp for safety
+                    if (dot > 1.0) dot = 1.0;
+                    if (dot < -1.0) dot = -1.0;
+                    double angle = std::acos(dot) * 180.0 / M_PI; // in degrees
+                    
+                    if (guard.get_see_through_walls()) {
+                        if (angle <= 45.0 && has_line_of_sight(gx, gy, x, y)) {
+                            int draw_x = x_offset + x;
+                            int draw_y = y_offset + y;
+                            if (static_cast<int>(draw_x) >= 0 && static_cast<int>(draw_x) < static_cast<int>(console_width) &&
+                                static_cast<int>(draw_y) >= 0 && static_cast<int>(draw_y) < static_cast<int>(console_height)) {
+                                // Color the tile blue for see through
+                                console.at({draw_x, draw_y}).bg = tcod::ColorRGB{0, 0, 255};
+
+                            }
+                        }
+                    }
+                    else {
+                        if (angle <= 45.0 && has_line_of_sight(gx, gy, x, y)) {
+                            int draw_x = x_offset + x;
+                            int draw_y = y_offset + y;
+                            if (static_cast<int>(draw_x) >= 0 && static_cast<int>(draw_x) < static_cast<int>(console_width) &&
+                                static_cast<int>(draw_y) >= 0 && static_cast<int>(draw_y) < static_cast<int>(console_height)) {
+                                // Color the tile yellow for sight
+                                console.at({draw_x, draw_y}).bg = tcod::ColorRGB{255, 255, 0};
+
+                            }
                         }
                     }
                 }
             }
         }
+    }
 
-        int player_x = static_cast<int>(_players[0].get_x()) + x_offset;
-        int player_y = static_cast<int>(_players[0].get_y()) + y_offset;
+    // Draw players
+    for (const auto& player : _players) {
+        int player_x = x_offset + static_cast<int>(player.get_x());
+        int player_y = y_offset + static_cast<int>(player.get_y());
+        if (static_cast<int>(player_x) >= 0 && static_cast<int>(player_x) < static_cast<int>(console_width) &&
+            static_cast<int>(player_y) >= 0 && static_cast<int>(player_y) < static_cast<int>(console_height)) {
+            // If standing on red, set pending loss
+            if (console.at({player_x, player_y}).bg == tcod::ColorRGB{255, 0, 0} && !_pending_loss) {
+                _pending_loss = true;
+                _pending_transition_time = std::chrono::steady_clock::now();
+            }
+            console.at({player_x, player_y}).ch = 'O';
+        }
+
         // Highlight player for win/loss if pending
         if (_pending_win) {
             console.at({player_x, player_y}).fg = 
@@ -136,18 +159,7 @@ void Board_Screen::show(tcod::Console& console) {
         }
         if (_pending_loss) {
             console.at({player_x, player_y}).fg = 
-            tcod::ColorRGB{255, 0, 0}; // Red for loss
-        }
-
-    }
-
-    // Draw players
-    for (const auto& player : _players) {
-        int draw_x = x_offset + static_cast<int>(player.get_x());
-        int draw_y = y_offset + static_cast<int>(player.get_y());
-        if (static_cast<int>(draw_x) >= 0 && static_cast<int>(draw_x) < static_cast<int>(console_width) &&
-            static_cast<int>(draw_y) >= 0 && static_cast<int>(draw_y) < static_cast<int>(console_height)) {
-            console.at({draw_x, draw_y}).ch = 'O';
+            tcod::ColorRGB{255, 255, 0}; // Yellow for loss
         }
     }
 
@@ -252,18 +264,24 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
     _board.resize(height, std::vector<char>(width, ' '));
     row_index = 0;
 
+    _tcod_map = std::make_unique<TCODMap>(width, height);
+
     // Read the actual board
     while (row_index < height && std::getline(file, line)) {
         for (size_t x = 0; x < std::min(width, line.size()); ++x) {
             char c = line[x];
             if (c == 'O') {
                 _players.emplace_back(x, row_index);
+                _tcod_map->setProperties(x, row_index, true /* transparent */, true);
                 continue; // Doesn't place player/guard on board
             } else if (c == 'G') {
                 _guards.emplace_back(x, row_index);
+                _tcod_map->setProperties(x, row_index, true /* transparent */, true);
                 continue;
             }
             _board[row_index][x] = c;
+            bool walkable = (c != '#');
+            _tcod_map->setProperties(x, row_index, true /* transparent */, walkable);
         }
         ++row_index;
     }
@@ -282,6 +300,9 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
             }
         }
     }
+
+    // Initialize pathfinding map here
+    _pathfinding_map = std::make_unique<TCODPath>(_tcod_map.get(), 99999.0f);
 
     file.close();
 }
@@ -330,7 +351,29 @@ void Board_Screen::use_user_input(Screen*& current_screen, const SDL_Event& even
 
 void Board_Screen::update_guards() {
     for (auto& guard : _guards) {
-        if (guard.get_movement_strategy()) {
+        if (guard.is_chasing_player()) {
+            int guardX = guard.get_x();
+            int guardY = guard.get_y();
+            int playerX = _players[0].get_x();
+            int playerY = _players[0].get_y();
+
+            std::cerr << "Guard at (" << guardX << "," << guardY << ") chasing player at (" << playerX << "," << playerY << ")\n";
+            bool is_transparent = true;
+            bool is_walkable = true;
+            _tcod_map->setProperties(guardX, guardY, is_transparent, is_walkable);
+            _tcod_map->setProperties(playerX, playerY, is_transparent, is_walkable);
+            _pathfinding_map->compute(guardX, guardY, playerX, playerY);
+            std::cerr << "Guard walkable? " << _tcod_map->isWalkable(guardX, guardY) << "\n";
+            std::cerr << "Player walkable? " << _tcod_map->isWalkable(playerX, playerY) << "\n";
+            int nextX = guardX, nextY = guardY;
+            std::cerr << "Path empty? " << _pathfinding_map->isEmpty() << "\n";
+            if (!_pathfinding_map->isEmpty()) {
+                _pathfinding_map->walk(&nextX, &nextY, true);
+                std::cerr << "Next step: (" << nextX << "," << nextY << ")\n";
+                guard.set_x(nextX);
+                guard.set_y(nextY);
+            }
+        } else if (guard.get_movement_strategy()) {
             guard.get_movement_strategy()->move(guard, *this);
         }
     }
@@ -341,51 +384,49 @@ bool Board_Screen::player_in_guard_sight() const {
     const auto& player = _players[0];
     int px = static_cast<int>(player.get_x());
     int py = static_cast<int>(player.get_y());
-
-    for (const auto& guard : _guards) {
+    bool seen = false;
+    for (auto& guard : const_cast<std::vector<Guard>&>(_guards)) {
+        if (guard.is_chasing_player()) continue;
         int gx = static_cast<int>(guard.get_x());
         int gy = static_cast<int>(guard.get_y());
         int dir = static_cast<int>(guard.get_direction());
-
         int fx = 0, fy = 0;
         switch (dir) {
-            case 1: fy = -1; break; // up
-            case 2: fx = 1; break;  // right
-            case 3: fy = 1; break;  // down
-            case 4: fx = -1; break; // left
+            case 1: fy = -1; break;
+            case 2: fx = 1; break;
+            case 3: fy = 1; break;
+            case 4: fx = -1; break;
             default: break;
         }
-
         int dx = px - gx;
         int dy = py - gy;
         if (dx*dx + dy*dy > 25 || (dx == 0 && dy == 0))
             continue;
-
         double vx = dx, vy = dy;
         double vlen = std::sqrt(vx*vx + vy*vy);
         vx /= vlen;
         vy /= vlen;
-
         double flen = std::sqrt(fx*fx + fy*fy);
         double fvx = (flen == 0) ? 0 : fx / flen;
         double fvy = (flen == 0) ? 0 : fy / flen;
-
         double dot = vx * fvx + vy * fvy;
         if (dot > 1.0) dot = 1.0;
         if (dot < -1.0) dot = -1.0;
         double angle = std::acos(dot) * 180.0 / M_PI;
         if (guard.get_see_through_walls()) {
             if (angle <= 45.0) {
-                return true;
+                guard.set_chasing_player(true);
+                seen = true;
             }
         }
         else {
             if (angle <= 45.0 && has_line_of_sight(gx, gy, px, py)) {
-                return true;
+                guard.set_chasing_player(true);
+                seen = true;
             }
         }
     }
-    return false;
+    return seen;
 }
 
 void Board_Screen::update(Screen*& current_screen) {
@@ -433,13 +474,8 @@ void Board_Screen::update(Screen*& current_screen) {
         }
 
         update_guards();
+        player_in_guard_sight();
         _last_move_time = now;
-
-        if (player_in_guard_sight()) {
-            _pending_loss = true;
-            _pending_transition_time = std::chrono::steady_clock::now();
-            return;
-        }
     }
 }
 

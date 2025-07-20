@@ -129,6 +129,9 @@ private:
     bool _pending_win = false;
     std::chrono::steady_clock::time_point _pending_transition_time;
 
+    std::unique_ptr<TCODPath> _pathfinding_map;
+    std::unique_ptr<TCODMap> _tcod_map;
+
 public:
     Board_Screen(int lvl);
 
