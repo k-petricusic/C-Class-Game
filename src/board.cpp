@@ -357,19 +357,14 @@ void Board_Screen::update_guards() {
             int playerX = _players[0].get_x();
             int playerY = _players[0].get_y();
 
-            std::cerr << "Guard at (" << guardX << "," << guardY << ") chasing player at (" << playerX << "," << playerY << ")\n";
             bool is_transparent = true;
             bool is_walkable = true;
             _tcod_map->setProperties(guardX, guardY, is_transparent, is_walkable);
             _tcod_map->setProperties(playerX, playerY, is_transparent, is_walkable);
             _pathfinding_map->compute(guardX, guardY, playerX, playerY);
-            std::cerr << "Guard walkable? " << _tcod_map->isWalkable(guardX, guardY) << "\n";
-            std::cerr << "Player walkable? " << _tcod_map->isWalkable(playerX, playerY) << "\n";
             int nextX = guardX, nextY = guardY;
-            std::cerr << "Path empty? " << _pathfinding_map->isEmpty() << "\n";
             if (!_pathfinding_map->isEmpty()) {
                 _pathfinding_map->walk(&nextX, &nextY, true);
-                std::cerr << "Next step: (" << nextX << "," << nextY << ")\n";
                 guard.set_x(nextX);
                 guard.set_y(nextY);
             }
@@ -453,7 +448,7 @@ void Board_Screen::update(Screen*& current_screen) {
         return;
     }
 
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - _last_move_time).count() >= 250) {
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - _last_move_time).count() >= _frame_delay) {
         if (_pressed_key != 0) {
             if (!_held_keys[_pressed_key - 1]) {
                 move(_players[0], _pressed_key);
@@ -474,7 +469,9 @@ void Board_Screen::update(Screen*& current_screen) {
         }
 
         update_guards();
-        player_in_guard_sight();
+        if (player_in_guard_sight()) {
+            _frame_delay = 250;
+        }
         _last_move_time = now;
     }
 }
@@ -486,11 +483,13 @@ bool Board_Screen::has_line_of_sight(int x1, int y1, int x2, int y2) const {
     int sy = (y1 < y2) ? 1 : -1;
     int err = dx - dy;
     if (_board[y2][x2] == '#') return false;
-    if (_board[y2][x2 - sx] == '#' && _board[y2 - sy][x2] == '#') return false; //Weird edge case when you're LOS is perpendicular with a diagonal wall
+    //Weird edge case when you're LOS is perpendicular with a diagonal wall
+    if (_board[y2][x2 - sx] == '#' && _board[y2 - sy][x2] == '#') return false;
 
     while (x1 != x2 || y1 != y2) {
         if (_board[y1][x1] == '#') return false;
-        if (_board[y1][x1 - sx] == '#' && _board[y1 - sy][x1] == '#') return false; //Weird edge case when you're LOS is perpendicular with a diagonal wall
+        //Weird edge case when you're LOS is perpendicular with a diagonal wall
+        if (_board[y1][x1 - sx] == '#' && _board[y1 - sy][x1] == '#') return false;
 
         int e2 = 2 * err;
         if (e2 > -dy) {

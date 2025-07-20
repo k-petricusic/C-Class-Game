@@ -119,6 +119,7 @@ private:
     bool _level_started = false;
     int _level;
 
+    int _frame_delay = 500;
     std::chrono::steady_clock::time_point _last_move_time = std::chrono::steady_clock::now();
 
     // 0 = no move, 1 = up, 2 = right, 3 = down, 4 = left

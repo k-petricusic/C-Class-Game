@@ -16,7 +16,7 @@ void Title_Screen::show(tcod::Console& console) {
     tcod::print(console, {1, 7}, "Press 'ESC' to quit.", std::nullopt, std::nullopt);
 
     if (error_message != "") {
-        tcod::print(console, {1, 5}, error_message, std::nullopt, std::nullopt);
+        tcod::print(console, {1, 9}, error_message, std::nullopt, std::nullopt);
     }
 }
 
