@@ -15,6 +15,7 @@ public:
 
 // 3. Random Search Strategy
 class RandomSearchStrategy : public IGuardMovementStrategy {
+    int _direction_duration = 0;
 public:
     void move(Guard& guard, Board_Screen& board) override;
 };

@@ -119,6 +119,7 @@ private:
     bool _level_started = false;
     int _level;
 
+    int _frame_delay = 500;
     std::chrono::steady_clock::time_point _last_move_time = std::chrono::steady_clock::now();
 
     // 0 = no move, 1 = up, 2 = right, 3 = down, 4 = left
@@ -154,4 +155,15 @@ public:
     void update(Screen*& current_screen);
 
     bool has_line_of_sight(int x1, int y1, int x2, int y2) const;
+};
+
+// --------- Credits screen class ---------
+class Credits_Screen : public Screen {
+private:
+    std::vector<std::string> credits_lines;
+    void load_credits(const std::string& filename);
+public:
+    Credits_Screen();
+    void show(tcod::Console& console) override;
+    void use_user_input(Screen*& current_screen, const SDL_Event& event) override;
 };
