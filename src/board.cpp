@@ -241,7 +241,7 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
 
     // Look for matching #<level>
     while (std::getline(file, line)) {
-        if (line == "#" + std::to_string(_level)) {
+        if (line == "LEVEL " + std::to_string(_level)) {
             found_level = true;
             break;
         }

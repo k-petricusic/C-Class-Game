@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <vector>
 
 // --------- Title screen implementation ---------
 void Title_Screen::show(tcod::Console& console) {
@@ -13,10 +14,11 @@ void Title_Screen::show(tcod::Console& console) {
     tcod::print(console, {1, 1}, "Welcome to the Game!", std::nullopt, std::nullopt);
     tcod::print(console, {1, 3}, "Press 'l' to start the levels.", std::nullopt, std::nullopt);
     tcod::print(console, {1, 5}, "Press 't' to view the tutorial.", std::nullopt, std::nullopt);
-    tcod::print(console, {1, 7}, "Press 'ESC' to quit.", std::nullopt, std::nullopt);
+    tcod::print(console, {1, 7}, "Press 'c' to view credits.", std::nullopt, std::nullopt);
+    tcod::print(console, {1, 9}, "Press 'ESC' to quit.", std::nullopt, std::nullopt);
 
     if (error_message != "") {
-        tcod::print(console, {1, 9}, error_message, std::nullopt, std::nullopt);
+        tcod::print(console, {1, 11}, error_message, std::nullopt, std::nullopt);
     }
 }
 
@@ -31,6 +33,10 @@ void Title_Screen::use_user_input(Screen*& current_screen, const SDL_Event& even
             case SDLK_T:
                 delete current_screen; // Clean up the current screen
                 current_screen = new Tutorial_Screen(); // Move to tutorial screen
+                break;
+            case SDLK_C:
+                delete current_screen;
+                current_screen = new Credits_Screen();
                 break;
             case SDLK_ESCAPE:
                 std::exit(0); // Exit the program
@@ -123,6 +129,17 @@ void Game_Won_Screen::show(tcod::Console& console) {
 void Game_Won_Screen::use_user_input(Screen*& current_screen, const SDL_Event& event) {
     if (event.type == SDL_EVENT_KEY_DOWN) {
         int level = _level;
+        int max_level;
+        // Dynamically determine max level by reading levels.txt
+        std::ifstream file(get_executable_dir() + "/levels.txt");
+        std::string line;
+        int found_levels = 0;
+        while (std::getline(file, line)) {
+            if (!line.empty() && line[0] == 'L') ++found_levels;
+        }
+        max_level = found_levels;
+        file.close();
+        
         switch (event.key.key) {
             case SDLK_ESCAPE:
                 delete current_screen;
@@ -133,8 +150,13 @@ void Game_Won_Screen::use_user_input(Screen*& current_screen, const SDL_Event& e
                 current_screen = new Board_Screen(level);
                 return;
             case SDLK_N:
-                delete current_screen;
-                current_screen = new Board_Screen(level + 1);
+                if (level >= max_level) {
+                    delete current_screen;
+                    current_screen = new Credits_Screen();
+                } else {
+                    delete current_screen;
+                    current_screen = new Board_Screen(level + 1);
+                }
                 return;
             default:
                 error_message = "Invalid input. Please try again.";
@@ -169,6 +191,45 @@ void Game_Over_Screen::use_user_input(Screen*& current_screen, const SDL_Event& 
             default:
                 error_message = "Invalid input. Please try again.";
                 return;
+        }
+    }
+}
+
+// --------- Credits screen implementation ---------
+Credits_Screen::Credits_Screen() {
+    std::string filename = get_executable_dir() + "/CREDITS.md";
+    load_credits(filename);
+}
+
+void Credits_Screen::load_credits(const std::string& filename) {
+    credits_lines.clear();
+    std::ifstream file(filename);
+    std::string line;
+    while (std::getline(file, line)) {
+        credits_lines.push_back(line);
+    }
+    file.close();
+}
+
+void Credits_Screen::show(tcod::Console& console) {
+    console.clear();
+    int y = 1;
+    for (const auto& line : credits_lines) {
+        tcod::print(console, {1, y}, line, std::nullopt, std::nullopt);
+        y++;
+    }
+    tcod::print(console, {1, y+1}, "Press ESC to return to the title screen.", std::nullopt, std::nullopt);
+    if (error_message != "") {
+        tcod::print(console, {1, y+2}, error_message, std::nullopt, std::nullopt);
+    }
+}
+
+void Credits_Screen::use_user_input(Screen*& current_screen, const SDL_Event& event) {
+    if (event.type == SDL_EVENT_KEY_DOWN) {
+        if (event.key.key == SDLK_ESCAPE) {
+            delete current_screen;
+            current_screen = new Title_Screen();
+            return;
         }
     }
 }

@@ -156,3 +156,14 @@ public:
 
     bool has_line_of_sight(int x1, int y1, int x2, int y2) const;
 };
+
+// --------- Credits screen class ---------
+class Credits_Screen : public Screen {
+private:
+    std::vector<std::string> credits_lines;
+    void load_credits(const std::string& filename);
+public:
+    Credits_Screen();
+    void show(tcod::Console& console) override;
+    void use_user_input(Screen*& current_screen, const SDL_Event& event) override;
+};
