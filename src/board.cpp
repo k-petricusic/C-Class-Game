@@ -111,24 +111,24 @@ void Board_Screen::show(tcod::Console& console) {
                     
                     if (guard.get_see_through_walls()) {
                         if (angle <= 45.0 && has_line_of_sight(gx, gy, x, y)) {
-                            int draw_x = x_offset + x;
-                            int draw_y = y_offset + y;
-                            if (static_cast<int>(draw_x) >= 0 && static_cast<int>(draw_x) < static_cast<int>(console_width) &&
-                                static_cast<int>(draw_y) >= 0 && static_cast<int>(draw_y) < static_cast<int>(console_height)) {
+                            int tile_draw_x = x_offset + x;
+                            int tile_draw_y = y_offset + y;
+                            if (static_cast<int>(tile_draw_x) >= 0 && static_cast<int>(tile_draw_x) < static_cast<int>(console_width) &&
+                                static_cast<int>(tile_draw_y) >= 0 && static_cast<int>(tile_draw_y) < static_cast<int>(console_height)) {
                                 // Color the tile blue for see through
-                                console.at({draw_x, draw_y}).bg = tcod::ColorRGB{0, 0, 255};
+                                console.at({tile_draw_x, tile_draw_y}).bg = tcod::ColorRGB{0, 0, 255};
 
                             }
                         }
                     }
                     else {
                         if (angle <= 45.0 && has_line_of_sight(gx, gy, x, y)) {
-                            int draw_x = x_offset + x;
-                            int draw_y = y_offset + y;
-                            if (static_cast<int>(draw_x) >= 0 && static_cast<int>(draw_x) < static_cast<int>(console_width) &&
-                                static_cast<int>(draw_y) >= 0 && static_cast<int>(draw_y) < static_cast<int>(console_height)) {
+                            int tile_draw_x = x_offset + x;
+                            int tile_draw_y = y_offset + y;
+                            if (static_cast<int>(tile_draw_x) >= 0 && static_cast<int>(tile_draw_x) < static_cast<int>(console_width) &&
+                                static_cast<int>(tile_draw_y) >= 0 && static_cast<int>(tile_draw_y) < static_cast<int>(console_height)) {
                                 // Color the tile yellow for sight
-                                console.at({draw_x, draw_y}).bg = tcod::ColorRGB{255, 255, 0};
+                                console.at({tile_draw_x, tile_draw_y}).bg = tcod::ColorRGB{255, 255, 0};
 
                             }
                         }
@@ -166,7 +166,7 @@ void Board_Screen::show(tcod::Console& console) {
     // Draw text above the board
     if (!_level_started) {
         std::string msg = "Press any key to start!";
-        int msg_x = (console_width - msg.size()) / 2;
+        int msg_x = (console_width - static_cast<int>(msg.size())) / 2;
         int msg_y = y_offset - 2; // 2 lines above the board
 
         if (msg_y >= 0) {
@@ -328,17 +328,17 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
         for (size_t x = 0; x < std::min(width, line.size()); ++x) {
             char c = line[x];
             if (c == 'O') {
-                _players.emplace_back(x, row_index);
-                _tcod_map->setProperties(x, row_index, true /* transparent */, true);
+                _players.emplace_back(static_cast<int>(x), static_cast<int>(row_index));
+                _tcod_map->setProperties(static_cast<int>(x), static_cast<int>(row_index), true /* transparent */, true);
                 continue; // Doesn't place player/guard on board
             } else if (c == 'G') {
-                _guards.emplace_back(x, row_index);
-                _tcod_map->setProperties(x, row_index, true /* transparent */, true);
+                _guards.emplace_back(static_cast<int>(x), static_cast<int>(row_index));
+                _tcod_map->setProperties(static_cast<int>(x), static_cast<int>(row_index), true /* transparent */, true);
                 continue;
             }
             _board[row_index][x] = c;
             bool walkable = (c != '#');
-            _tcod_map->setProperties(x, row_index, true /* transparent */, walkable);
+            _tcod_map->setProperties(static_cast<int>(x), static_cast<int>(row_index), true /* transparent */, walkable);
         }
         ++row_index;
     }
