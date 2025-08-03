@@ -10,6 +10,7 @@
 #include "../include/Movable.h"
 #include "../include/Player.h"
 #include "../include/Screen.h"
+#include "../include/MusicManager.h"
 
 using namespace std;
 
@@ -17,6 +18,7 @@ int main(int argc, char* argv[]) {
     // Get the executable directory (implement get_executable_dir as discussed)
     std::string exe_dir = get_executable_dir();
     std::string font_path = exe_dir + "/terminal8x8_gs_ro.png";
+   
 
     // Load the font tileset
     auto tileset = tcod::load_tilesheet(
@@ -38,7 +40,6 @@ int main(int argc, char* argv[]) {
     auto context = tcod::Context(params);
 
     Screen* current_screen = new Title_Screen();
-
     while (true) {
         current_screen->show(console);
         context.present(console);

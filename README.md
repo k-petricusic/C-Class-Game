@@ -1,5 +1,7 @@
 # C++-Class-Game
 
+[Home](README.md) | [Credits](CREDITS.md)
+
 A terminal-based C++ project.
 
 ---

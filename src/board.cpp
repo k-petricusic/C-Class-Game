@@ -177,6 +177,63 @@ void Board_Screen::show(tcod::Console& console) {
             }
         }
     }
+
+    // Draw timing indicator below the board
+    if (_level_started) {
+        int bar_y = y_offset + static_cast<int>(board_height) + 1;
+        int bar_y2 = bar_y + 1;
+        int bar_width = console_width;
+        float progress = _timing_progress;
+        int center = (bar_width - 1) / 2;
+        int left_pos = static_cast<int>(center - (center * (1.0f - progress)));
+        int right_pos = bar_width - 1 - left_pos;
+        int chasing_count = count_chasing_guards();
+        tcod::ColorRGB color = get_timing_color(chasing_count);
+        int flash_range = 1; // Allow a range of 1 around the center for the flash
+        for (int i = 0; i < bar_width; ++i) {
+            int draw_x = i;
+            // Flash blip: more generous range
+            if (std::abs(i - center) <= flash_range && 
+                std::abs(left_pos - center) <= flash_range && 
+                std::abs(right_pos - center) <= flash_range) {
+                console.at({draw_x, bar_y}).ch = ' ';
+                console.at({draw_x, bar_y}).fg = tcod::ColorRGB{0, 0, 0};
+                console.at({draw_x, bar_y}).bg = color;
+                console.at({draw_x, bar_y2}).ch = ' ';
+                console.at({draw_x, bar_y2}).fg = tcod::ColorRGB{0, 0, 0};
+                console.at({draw_x, bar_y2}).bg = color;
+            } else if (i == left_pos) {
+                // '\xB3' is hexadecimal for 179, which is the vertical bar │ in code page 437
+                console.at({draw_x, bar_y}).ch = 'I';
+                console.at({draw_x, bar_y}).fg = color;
+                console.at({draw_x, bar_y}).bg = tcod::ColorRGB{0, 0, 0};
+                console.at({draw_x, bar_y2}).ch = 'I';
+                console.at({draw_x, bar_y2}).fg = color;
+                console.at({draw_x, bar_y2}).bg = tcod::ColorRGB{0, 0, 0};
+            } else if (i == right_pos) {
+                console.at({draw_x, bar_y}).ch = 'I';
+                console.at({draw_x, bar_y}).fg = color;
+                console.at({draw_x, bar_y}).bg = tcod::ColorRGB{0, 0, 0};
+                console.at({draw_x, bar_y2}).ch = 'I';
+                console.at({draw_x, bar_y2}).fg = color;
+                console.at({draw_x, bar_y2}).bg = tcod::ColorRGB{0, 0, 0};
+            } else if (i == center) {
+                console.at({draw_x, bar_y}).ch = ':';
+                console.at({draw_x, bar_y}).fg = tcod::ColorRGB{128, 128, 128};
+                console.at({draw_x, bar_y}).bg = tcod::ColorRGB{0, 0, 0};
+                console.at({draw_x, bar_y2}).ch = ':';
+                console.at({draw_x, bar_y2}).fg = tcod::ColorRGB{128, 128, 128};
+                console.at({draw_x, bar_y2}).bg = tcod::ColorRGB{0, 0, 0};
+            } else {
+                console.at({draw_x, bar_y}).ch = ' ';
+                console.at({draw_x, bar_y}).fg = tcod::ColorRGB{0, 0, 0};
+                console.at({draw_x, bar_y}).bg = tcod::ColorRGB{0, 0, 0};
+                console.at({draw_x, bar_y2}).ch = ' ';
+                console.at({draw_x, bar_y2}).fg = tcod::ColorRGB{0, 0, 0};
+                console.at({draw_x, bar_y2}).bg = tcod::ColorRGB{0, 0, 0};
+            }
+        }
+    }
 }
 
 bool Board_Screen::move(Movable& obj, size_t direction) {
@@ -428,6 +485,17 @@ void Board_Screen::update(Screen*& current_screen) {
     auto now = std::chrono::steady_clock::now();
     if (!_level_started) return;
 
+    // Update timing progress
+    float interval = float(_frame_delay) / 1000.0f;
+    float elapsed = std::chrono::duration<float>(now - _last_beat_time).count();
+    if (elapsed >= interval) {
+        // On the beat
+        _timing_progress = 1.0f;
+        _last_beat_time = now;
+    } else {
+        _timing_progress = elapsed / interval;
+    }
+
     // Handle pending win/loss state
     if (_pending_win || _pending_loss) {
         if (std::chrono::duration_cast<std::chrono::milliseconds>(now - _pending_transition_time).count() >= 1500) {
@@ -470,7 +538,7 @@ void Board_Screen::update(Screen*& current_screen) {
 
         update_guards();
         if (player_in_guard_sight()) {
-            _frame_delay = 250;
+            _frame_delay /= 2;
         }
         _last_move_time = now;
     }
@@ -502,5 +570,33 @@ bool Board_Screen::has_line_of_sight(int x1, int y1, int x2, int y2) const {
         }
     }
     return true;
+}
+
+// Helper: count guards chasing player
+int Board_Screen::count_chasing_guards() const {
+    int count = 0;
+    for (const auto& guard : _guards) {
+        if (guard.is_chasing_player()) ++count;
+    }
+    return count;
+}
+
+// Helper for timing color
+// Green (slow, 0 chasing), orange (1+ chasing), red (3+ chasing or 125ms interval)
+tcod::ColorRGB Board_Screen::get_timing_color(int chasing_count) const {
+    int min_delay = 125; // ms
+    int max_delay = 500; // ms
+    int d = std::clamp(_frame_delay, min_delay, max_delay);
+    float t = float(max_delay - d) / float(max_delay - min_delay);
+    // Default: green to yellow to red
+    int r = static_cast<int>(255 * t);
+    int g = static_cast<int>(255 * (1.0f - t));
+    // If 1-2 guards chasing, orange; 3+ or 125ms, red
+    if (chasing_count >= 3 || d <= min_delay) {
+        r = 255; g = 0;
+    } else if (chasing_count >= 1) {
+        r = 255; g = 128;
+    }
+    return tcod::ColorRGB{static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(0)};
 }
 
