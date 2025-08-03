@@ -133,6 +133,14 @@ private:
     std::unique_ptr<TCODPath> _pathfinding_map;
     std::unique_ptr<TCODMap> _tcod_map;
 
+    // Timing indicator state
+    float _timing_progress = 0.0f; // 0.0 to 1.0, progress toward next beat
+    std::chrono::steady_clock::time_point _last_beat_time = std::chrono::steady_clock::now();
+
+    // Helper for color based on speed
+    int count_chasing_guards() const;
+    tcod::ColorRGB get_timing_color(int chasing_count) const;
+
 public:
     Board_Screen(int lvl);
 
@@ -155,6 +163,9 @@ public:
     void update(Screen*& current_screen);
 
     bool has_line_of_sight(int x1, int y1, int x2, int y2) const;
+
+    int get_frame_delay() const { return _frame_delay; }
+    
 };
 
 // --------- Credits screen class ---------
