@@ -273,5 +273,5 @@ Contributions should follow these guidelines:
 
 
 Become a beta tester by playing our game and filling out this form:  
-https://docs.google.com/forms/d/e/1FAIpQLSe6YKlQTI7Qc4jxVJvfyrBUSd9kNMXNq38Cy_ZB0f-7iAq42w/viewform?usp=dialog
-
+[https://docs.google.com/forms/d/e/1FAIpQLSe6YKlQTI7Qc4jxVJvfyrBUSd9kNMXNq38Cy_ZB0f-7iAq42w/viewform?usp=dialog
+](https://forms.gle/Zk5BLCc7XLkx7AW88)
