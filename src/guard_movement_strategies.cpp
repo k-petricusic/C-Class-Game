@@ -1,4 +1,4 @@
-#include "GuardMovementStrategies.h"
+#include "../include/GuardMovementStrategies.h"
 #include <unordered_map>
 #include <functional>
 #include <random>
@@ -6,10 +6,16 @@
 // 1. Random Search Strategy
 void RandomSearchStrategy::move(Guard& guard, Board_Screen& board) {
     (void)board; // Prevent unused parameter warning
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(1, 4);
-    guard.set_direction(dis(gen));
+    if (_direction_duration == 0) {
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(1, 4);
+        guard.set_direction(dis(gen));
+        std::uniform_int_distribution<> dis2(2, 5);
+        _direction_duration = dis2(gen);
+    } else {
+        _direction_duration--;
+    }
     board.move(guard, guard.get_direction());
 }
 

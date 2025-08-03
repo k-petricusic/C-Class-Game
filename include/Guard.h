@@ -10,12 +10,14 @@ class Guard : public Movable {
     // Guard is a movable object, so it inherits from Movable
 private:
     size_t _guard_direction; // 1: up, 2: right, 3: down, 4: left
+    bool _see_through_walls; //whether or not the guard  an see through walls
     IGuardMovementStrategy* _movement_strategy;
+    bool _chasing_player; // whether the guard is currently chasing the player
 
 public:
 
-    Guard(size_t x = 0, size_t y = 0, size_t direction = 1, IGuardMovementStrategy* strategy = nullptr)
-        : Movable(x, y), _guard_direction(direction), _movement_strategy(strategy) {}
+    Guard(size_t x = 0, size_t y = 0, size_t direction = 1, IGuardMovementStrategy* strategy = nullptr, bool see_through_walls = false)
+        : Movable(x, y), _guard_direction(direction), _see_through_walls(see_through_walls), _movement_strategy(strategy), _chasing_player(false) {}
     
     size_t get_direction() const { return _guard_direction; }
 
@@ -24,11 +26,18 @@ public:
         _guard_direction = direction;
         return true;
     }
+
+    bool get_see_through_walls() const { return _see_through_walls; }
+
+    void set_see_through_walls(bool see_through_walls) { _see_through_walls = see_through_walls;}
     
     void set_movement_strategy(IGuardMovementStrategy* strategy) {
         _movement_strategy = strategy;
     }
 
     IGuardMovementStrategy* get_movement_strategy() const { return _movement_strategy; }
+
+    bool is_chasing_player() const { return _chasing_player; }
+    void set_chasing_player(bool chasing) { _chasing_player = chasing; }
 
 };

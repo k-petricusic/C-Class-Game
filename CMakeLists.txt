@@ -35,6 +35,25 @@ add_custom_command(TARGET game POST_BUILD
         $<TARGET_FILE_DIR:game>
 )
 
+# Copies the CREDITS.md file to the directory with the executable game.exe
+add_custom_command(TARGET game POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_SOURCE_DIR}/CREDITS.md
+        $<TARGET_FILE_DIR:game>
+)
+
+# Copies the menu.wav and chase.wav files to the directory with the executable game.exe
+# add_custom_command(TARGET game POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#         ${CMAKE_SOURCE_DIR}/src/menu.wav
+#         $<TARGET_FILE_DIR:game>
+# )
+# add_custom_command(TARGET game POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#         ${CMAKE_SOURCE_DIR}/src/chase.wav
+#         $<TARGET_FILE_DIR:game>
+# )
+
 # Links libtcod to the executable
 target_include_directories(game PRIVATE include)
 

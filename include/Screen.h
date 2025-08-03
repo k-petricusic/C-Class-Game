@@ -32,6 +32,42 @@ public:
     void use_user_input(Screen*& current_screen, const SDL_Event& event) override;
 };
 
+// --------- Tutorial screen class ---------
+class Tutorial_Screen : public Screen {
+private:
+    std::vector<std::vector<std::string>> _tutorial_tasks;
+    std::vector<std::vector<std::string>> _completed_tasks;
+    size_t _task_phase = 0;
+    size_t _time_after_task_phase = 0;
+
+    static constexpr char background = ' ';
+    std::vector<std::vector<char>> _tutorial_board;
+
+    // 0 = no move, 1 = up, 2 = right, 3 = down, 4 = left
+    int _pressed_key = 0;
+    std::vector<bool> _held_keys;
+
+    std::vector<Guard> _tutorial_guards;
+    std::vector<Player> _tutorial_players;
+
+    std::chrono::steady_clock::time_point _last_move_time = std::chrono::steady_clock::now();
+
+public:
+    Tutorial_Screen();
+
+    void show(tcod::Console& console) override;
+    void use_user_input(Screen*& current_screen, const SDL_Event& event) override;
+
+    bool move(Movable& movable, size_t direction);
+
+    void update(Screen*& current_screen);
+
+    size_t get_x_offset(tcod::Console& console, std::string message) const;
+    size_t get_y_offset(tcod::Console& console, std::string message) const;
+
+    bool has_line_of_sight(int x1, int y1, int x2, int y2) const;
+};
+
 // --------- Level Select screen class ---------
 class Level_Select_Screen : public Screen {
 public:
@@ -41,7 +77,14 @@ public:
 
 // --------- Game Over screen class ---------
 class Game_Over_Screen : public Screen {
-public:
+private:
+    int _level;
+
+    public:
+    Game_Over_Screen(int level) : _level(level) {}
+
+    int get_level() const { return _level; }
+
     void show(tcod::Console& console) override;
     void use_user_input(Screen*& current_screen, const SDL_Event& event) override;
 };
@@ -50,7 +93,8 @@ public:
 class Game_Won_Screen : public Screen {
     private:
         int _level;
-    
+
+
     public:
         Game_Won_Screen(int level) : _level(level) {}
 
@@ -58,7 +102,7 @@ class Game_Won_Screen : public Screen {
 
         void show(tcod::Console& console) override;
         void use_user_input(Screen*& current_screen, const SDL_Event& event) override;
-    };
+};
     
 
 // --------- Board screen class ---------
@@ -72,10 +116,30 @@ private:
     std::vector<std::vector<char>> _board;
     // Player = "O", Guard = "G", Wall = "|", Empty = " "
 
+    bool _level_started = false;
     int _level;
 
-    std::chrono::steady_clock::time_point last_move_time = std::chrono::steady_clock::now();
-    int pending_move_direction = 0;
+    int _frame_delay = 500;
+    std::chrono::steady_clock::time_point _last_move_time = std::chrono::steady_clock::now();
+
+    // 0 = no move, 1 = up, 2 = right, 3 = down, 4 = left
+    int _pressed_key = 0;
+    std::vector<bool> _held_keys;
+
+    bool _pending_loss = false;
+    bool _pending_win = false;
+    std::chrono::steady_clock::time_point _pending_transition_time;
+
+    std::unique_ptr<TCODPath> _pathfinding_map;
+    std::unique_ptr<TCODMap> _tcod_map;
+
+    // Timing indicator state
+    float _timing_progress = 0.0f; // 0.0 to 1.0, progress toward next beat
+    std::chrono::steady_clock::time_point _last_beat_time = std::chrono::steady_clock::now();
+
+    // Helper for color based on speed
+    int count_chasing_guards() const;
+    tcod::ColorRGB get_timing_color(int chasing_count) const;
 
 public:
     Board_Screen(int lvl);
@@ -96,5 +160,21 @@ public:
 
     bool player_in_guard_sight() const;
 
-    void update(Screen*& current_screen); // Add this method for ticking logic in the main loop
+    void update(Screen*& current_screen);
+
+    bool has_line_of_sight(int x1, int y1, int x2, int y2) const;
+
+    int get_frame_delay() const { return _frame_delay; }
+    
+};
+
+// --------- Credits screen class ---------
+class Credits_Screen : public Screen {
+private:
+    std::vector<std::string> credits_lines;
+    void load_credits(const std::string& filename);
+public:
+    Credits_Screen();
+    void show(tcod::Console& console) override;
+    void use_user_input(Screen*& current_screen, const SDL_Event& event) override;
 };

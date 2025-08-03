@@ -10,6 +10,7 @@
 #include "../include/Movable.h"
 #include "../include/Player.h"
 #include "../include/Screen.h"
+#include "../include/MusicManager.h"
 
 using namespace std;
 
@@ -17,6 +18,7 @@ int main(int argc, char* argv[]) {
     // Get the executable directory (implement get_executable_dir as discussed)
     std::string exe_dir = get_executable_dir();
     std::string font_path = exe_dir + "/terminal8x8_gs_ro.png";
+   
 
     // Load the font tileset
     auto tileset = tcod::load_tilesheet(
@@ -38,15 +40,15 @@ int main(int argc, char* argv[]) {
     auto context = tcod::Context(params);
 
     Screen* current_screen = new Title_Screen();
-
     while (true) {
-        console.clear();
         current_screen->show(console);
         context.present(console);
 
-        // Only call update if the current screen is a Board_Screen
-        if (auto board = dynamic_cast<Board_Screen*>(current_screen)) {
-            board->update(current_screen);
+        // Only call update if the current screen is Board_Screen or Tutorial_Screen
+        if (auto board_screen = dynamic_cast<Board_Screen*>(current_screen)) {
+            board_screen->update(current_screen);
+        } else if (auto tutorial_screen = dynamic_cast<Tutorial_Screen*>(current_screen)) {
+            tutorial_screen->update(current_screen);
         }
 
         SDL_Event event;
