@@ -321,7 +321,7 @@ void Board_Screen::read_level_from_file(const std::string& filename) {
     _board.resize(height, std::vector<char>(width, ' '));
     row_index = 0;
 
-    _tcod_map = std::make_unique<TCODMap>(width, height);
+    _tcod_map = std::make_unique<TCODMap>(static_cast<int>(width), static_cast<int>(height));
 
     // Read the actual board
     while (row_index < height && std::getline(file, line)) {
@@ -409,10 +409,10 @@ void Board_Screen::use_user_input(Screen*& current_screen, const SDL_Event& even
 void Board_Screen::update_guards() {
     for (auto& guard : _guards) {
         if (guard.is_chasing_player()) {
-            int guardX = guard.get_x();
-            int guardY = guard.get_y();
-            int playerX = _players[0].get_x();
-            int playerY = _players[0].get_y();
+            int guardX = static_cast<int>(guard.get_x());
+            int guardY = static_cast<int>(guard.get_y());
+            int playerX = static_cast<int>(_players[0].get_x());
+            int playerY = static_cast<int>(_players[0].get_y());
 
             bool is_transparent = true;
             bool is_walkable = true;
